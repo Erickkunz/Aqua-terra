@@ -1,38 +1,77 @@
 /* Aqua-Terra UX polish
-   - Loading state on auth/admin form submit (spinner + disabled)
-   - Smooth page fade-in on load
-   - Sidebar links: brief shimmer on click (perceived speed)
+   - Page overlay (logo + spinner) covers navigation so there's NO white flash
+   - Loading state on auth/admin form submit
+   - Submenu click debounce
 */
 (function () {
-  // ---- Fade in body on load ----
-  document.documentElement.classList.add('page-loading');
-  window.addEventListener('load', () => {
-    document.documentElement.classList.remove('page-loading');
-    document.documentElement.classList.add('page-ready');
-  });
-  // safety: even if 'load' is slow, reveal after 600ms
-  setTimeout(() => {
-    document.documentElement.classList.remove('page-loading');
-    document.documentElement.classList.add('page-ready');
-  }, 600);
+  const overlay = document.getElementById('pageOverlay');
 
-  // ---- Loading state on form submit (auth + admin) ----
+  // ---- Hide overlay once page is ready ----
+  function hideOverlay() {
+    if (!overlay) return;
+    overlay.classList.add('hide');
+    setTimeout(() => { overlay.style.display = 'none'; }, 450);
+  }
+
+  // The overlay starts visible (covers everything). Fade out when page is rendered.
+  if (overlay) {
+    overlay.style.display = 'flex';
+    // wait for next frame so first paint is the overlay (no flash)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        // small delay so user perceives the transition smoothly
+        if (document.readyState === 'complete') {
+          setTimeout(hideOverlay, 80);
+        } else {
+          window.addEventListener('load', () => setTimeout(hideOverlay, 80), { once: true });
+          // safety: hide after 1.5s no matter what
+          setTimeout(hideOverlay, 1500);
+        }
+      });
+    });
+  }
+
+  // ---- Show overlay on internal link navigation ----
+  function isInternalNav(a) {
+    const href = a.getAttribute('href');
+    if (!href) return false;
+    if (href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return false;
+    if (a.target === '_blank' || a.hasAttribute('download')) return false;
+    if (/^https?:\/\//i.test(href) && !href.startsWith(location.origin)) return false;
+    return true;
+  }
+
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a');
+    if (!a) return;
+    if (!isInternalNav(a)) return;
+    if (a.classList.contains('js-add-cart') || a.classList.contains('js-wishlist')) return;
+    showOverlay();
+  });
+
+  function showOverlay() {
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+    overlay.classList.remove('hide');
+    overlay.classList.add('show');
+  }
+
+  // ---- Form submit: overlay + button spinner ----
   document.addEventListener('submit', (e) => {
     const form = e.target;
     if (!(form instanceof HTMLFormElement)) return;
-    // skip JSON forms (newsletter / cart use api.js)
     if (form.dataset.skipLoading === '1') return;
     if (form.classList.contains('newsletter-form')) return;
 
+    showOverlay();
+
     const btn = form.querySelector('button[type="submit"], button:not([type])');
     if (!btn || btn.dataset.loading === '1') return;
-
     btn.dataset.loading = '1';
     btn.dataset.originalHtml = btn.innerHTML;
     btn.disabled = true;
     btn.classList.add('btn-loading');
     btn.innerHTML = '<span class="spinner"></span> Procesando...';
-    // safety re-enable after 8s (in case navigation never finishes)
     setTimeout(() => {
       if (btn.dataset.loading === '1' && btn.dataset.originalHtml) {
         btn.innerHTML = btn.dataset.originalHtml;
@@ -43,28 +82,14 @@
     }, 8000);
   });
 
-  // ---- Sidebar links: outbound nav transition ----
-  // Wait a tick on internal link clicks so the user sees a subtle indicator.
-  document.addEventListener('click', (e) => {
-    const a = e.target.closest('a');
-    if (!a) return;
-    const href = a.getAttribute('href');
-    if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
-    // external?
-    if (/^https?:\/\//i.test(href) && !href.startsWith(location.origin)) return;
-    if (a.target === '_blank' || a.hasAttribute('download')) return;
-    // skip cart/wishlist toggle buttons
-    if (a.classList.contains('js-add-cart') || a.classList.contains('js-wishlist')) return;
-    document.documentElement.classList.add('page-leaving');
-  });
-  // if back-forward cache restores the page, drop the leaving class
-  window.addEventListener('pageshow', () => {
-    document.documentElement.classList.remove('page-leaving');
+  // ---- BFCache: drop overlay if user hits back ----
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) {
+      hideOverlay();
+    }
   });
 
-  // ---- Smooth sidebar group expand (height transition) ----
-  // Already CSS-driven via .open class; no JS needed here, but ensure
-  // toggle is debounced so rapid clicks don't break the animation.
+  // ---- Debounce sidebar group toggles ----
   let lastToggle = 0;
   document.querySelectorAll('.sidebar-group-trigger').forEach(btn => {
     btn.addEventListener('click', (e) => {

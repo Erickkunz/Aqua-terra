@@ -14,13 +14,22 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" />
   <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg" />
-  <link rel="stylesheet" href="/static/css/style.css" />
-  <link rel="stylesheet" href="/static/css/responsive.css" />
-  <link rel="stylesheet" href="/static/css/animations.css" />
-  <link rel="stylesheet" href="/static/css/futuristic.css" />
+  <link rel="stylesheet" href="/static/css/style.css?v=5" />
+  <link rel="stylesheet" href="/static/css/responsive.css?v=5" />
+  <link rel="stylesheet" href="/static/css/animations.css?v=5" />
+  <link rel="stylesheet" href="/static/css/futuristic.css?v=5" />
   {% block head_extra %}{% endblock %}
 </head>
 <body>
+  <div id="pageOverlay" class="page-overlay" aria-hidden="true">
+    <div class="page-overlay-inner">
+      <div class="page-overlay-logo">
+        <img src="/static/img/logo-mark.svg" alt="">
+      </div>
+      <div class="page-overlay-spinner"></div>
+    </div>
+  </div>
+
   {% include "partials/nav.html" %}
 
   <div class="app-shell">
@@ -36,11 +45,11 @@
   <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="/static/js/api.js"></script>
-  <script src="/static/js/main.js"></script>
-  <script src="/static/js/cursor-waves.js" defer></script>
-  <script src="/static/js/chat-widget.js" defer></script>
-  <script src="/static/js/smooth-ux.js"></script>
+  <script src="/static/js/api.js?v=5"></script>
+  <script src="/static/js/main.js?v=5"></script>
+  <script src="/static/js/cursor-waves.js?v=5" defer></script>
+  <script src="/static/js/chat-widget.js?v=5" defer></script>
+  <script src="/static/js/smooth-ux.js?v=5"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

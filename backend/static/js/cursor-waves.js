@@ -1,12 +1,8 @@
 /* =====================================================================
-   Aqua-Terra cursor wave (Antigravity-style)
-   - Visible on both light and dark backgrounds (no mix-blend-mode).
-   - Soft glowing focal dot follows the cursor with lerp.
-   - Larger blurred halo trails slowly behind.
-   - Subtle concentric wave rings emanate continuously.
-   - Bigger pulse on click.
-   - Pointer-events: none -> never blocks clicks or scroll.
-   - Disabled on touch and prefers-reduced-motion.
+   Aqua-Terra cursor wave (HIGHLY VISIBLE Antigravity-style)
+   Big focal dot + solid ring + bright halo + continuous waves.
+   Visible on light AND dark backgrounds.
+   Disabled on touch and prefers-reduced-motion.
    ===================================================================== */
 (function () {
   if (window.__aquaCursor) return; window.__aquaCursor = true;
@@ -35,20 +31,19 @@
   resize();
   window.addEventListener('resize', resize);
 
-  // --- State ---
-  let mx = -200, my = -200;          // raw mouse (off-screen initially)
-  let fx = mx, fy = my;              // focal (fast lerp)
-  let hx = mx, hy = my;              // halo (slow lerp)
+  let mx = -200, my = -200;
+  let fx = mx, fy = my;
+  let hx = mx, hy = my;
   let visible = false;
   let speed = 0;
   const ripples = [];
   let lastSpawn = 0;
   let waveSpawn = 0;
 
-  // --- Colors ---
   const C_CYAN = [61, 217, 214];
   const C_BLUE = [46, 117, 182];
   const C_DEEP = [31, 78, 121];
+  const C_WHITE = [255, 255, 255];
   const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 
   window.addEventListener('mousemove', (e) => {
@@ -56,22 +51,19 @@
     const v = Math.hypot(dx, dy);
     speed = speed * 0.85 + v * 0.15;
     mx = e.clientX; my = e.clientY;
-    if (!visible) {
-      // first time -> snap focal/halo to current pos so it doesn't fly in
-      fx = mx; fy = my; hx = mx; hy = my;
-    }
+    if (!visible) { fx = mx; fy = my; hx = mx; hy = my; }
     visible = true;
 
     const now = performance.now();
-    if (v > 5 && now - lastSpawn > 90) {
+    if (v > 4 && now - lastSpawn > 60) {
       ripples.push({
         x: mx, y: my,
-        r: 6,
-        rmax: 55 + Math.min(70, v * 1.2),
+        r: 8,
+        rmax: 70 + Math.min(80, v * 1.3),
         born: now,
         life: 900,
         color: C_CYAN,
-        width: 1.4,
+        width: 2.2,
       });
       lastSpawn = now;
     }
@@ -82,15 +74,15 @@
 
   window.addEventListener('click', (e) => {
     const now = performance.now();
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
       ripples.push({
         x: e.clientX, y: e.clientY,
-        r: 8 + i * 6,
-        rmax: 110 + i * 35,
+        r: 10 + i * 8,
+        rmax: 130 + i * 50,
         born: now + i * 70,
         life: 1100,
-        color: i ? C_BLUE : C_CYAN,
-        width: 1.8,
+        color: i === 1 ? C_BLUE : C_CYAN,
+        width: 2.5,
       });
     }
   });
@@ -98,55 +90,75 @@
   function lerp(a, b, t) { return a + (b - a) * t; }
 
   function tick(now) {
-    fx = lerp(fx, mx, 0.22);
-    fy = lerp(fy, my, 0.22);
-    hx = lerp(hx, mx, 0.085);
-    hy = lerp(hy, my, 0.085);
+    fx = lerp(fx, mx, 0.25);
+    fy = lerp(fy, my, 0.25);
+    hx = lerp(hx, mx, 0.09);
+    hy = lerp(hy, my, 0.09);
 
     ctx.clearRect(0, 0, W, H);
 
     if (!visible) { requestAnimationFrame(tick); return; }
 
     // continuous gentle wave
-    if (now - waveSpawn > 480) {
+    if (now - waveSpawn > 380) {
       ripples.push({
         x: hx, y: hy,
-        r: 16, rmax: 78, born: now, life: 1700,
-        color: C_CYAN, width: 1, gentle: true,
+        r: 20, rmax: 95, born: now, life: 1700,
+        color: C_CYAN, width: 1.5, gentle: true,
       });
       waveSpawn = now;
     }
 
-    // --- Outer halo (big diffuse glow) ---
-    const haloR = 65 + Math.min(25, speed * 0.5);
-    const haloA = 0.18 + Math.min(0.10, speed * 0.004);
+    // ===== OUTER HALO (big diffuse glow) =====
+    const haloR = 80 + Math.min(30, speed * 0.6);
+    const haloA = 0.35 + Math.min(0.15, speed * 0.005);
     const g1 = ctx.createRadialGradient(hx, hy, 0, hx, hy, haloR);
     g1.addColorStop(0, rgba(C_CYAN, haloA));
-    g1.addColorStop(0.45, rgba(C_BLUE, haloA * 0.6));
+    g1.addColorStop(0.4, rgba(C_BLUE, haloA * 0.7));
     g1.addColorStop(1, rgba(C_DEEP, 0));
     ctx.fillStyle = g1;
     ctx.beginPath();
     ctx.arc(hx, hy, haloR, 0, Math.PI * 2);
     ctx.fill();
 
-    // --- Inner focal glow ---
-    const focalR = 22;
+    // ===== INNER FOCAL GLOW =====
+    const focalR = 32;
     const g2 = ctx.createRadialGradient(fx, fy, 0, fx, fy, focalR);
-    g2.addColorStop(0, rgba(C_CYAN, 0.65));
-    g2.addColorStop(0.45, rgba(C_CYAN, 0.22));
+    g2.addColorStop(0, rgba(C_WHITE, 0.85));
+    g2.addColorStop(0.25, rgba(C_CYAN, 0.75));
+    g2.addColorStop(0.6, rgba(C_CYAN, 0.35));
     g2.addColorStop(1, rgba(C_CYAN, 0));
     ctx.fillStyle = g2;
     ctx.beginPath();
     ctx.arc(fx, fy, focalR, 0, Math.PI * 2);
     ctx.fill();
 
-    // --- Bright core ---
+    // ===== SOLID RING (always visible, like Antigravity) =====
     ctx.beginPath();
-    ctx.fillStyle = rgba(C_CYAN, 0.9);
-    ctx.arc(fx, fy, 2.4, 0, Math.PI * 2);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = rgba(C_CYAN, 0.95);
+    ctx.arc(fx, fy, 18, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // inner soft ring
+    ctx.beginPath();
+    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = rgba(C_WHITE, 0.6);
+    ctx.arc(fx, fy, 11, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // ===== BRIGHT CORE DOT =====
+    ctx.beginPath();
+    ctx.fillStyle = rgba(C_WHITE, 1);
+    ctx.arc(fx, fy, 3.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // --- Wave ripples ---
+    ctx.beginPath();
+    ctx.fillStyle = rgba(C_CYAN, 1);
+    ctx.arc(fx, fy, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ===== WAVE RIPPLES =====
     for (let i = ripples.length - 1; i >= 0; i--) {
       const r = ripples[i];
       const age = now - r.born;
@@ -155,19 +167,19 @@
       if (t >= 1) { ripples.splice(i, 1); continue; }
       const eased = 1 - Math.pow(1 - t, 3);
       const radius = r.r + (r.rmax - r.r) * eased;
-      const baseA = r.gentle ? 0.32 : 0.55;
+      const baseA = r.gentle ? 0.45 : 0.75;
       const alpha = baseA * (1 - t);
-      // outer thin ring
+      // outer ring
       ctx.beginPath();
       ctx.lineWidth = r.width;
       ctx.strokeStyle = rgba(r.color, alpha);
       ctx.arc(r.x, r.y, radius, 0, Math.PI * 2);
       ctx.stroke();
       // inner glow ring
-      if (!r.gentle && t < 0.6) {
+      if (!r.gentle && t < 0.65) {
         ctx.beginPath();
-        ctx.lineWidth = r.width * 0.6;
-        ctx.strokeStyle = rgba(C_CYAN, alpha * 0.4);
+        ctx.lineWidth = r.width * 0.7;
+        ctx.strokeStyle = rgba(C_WHITE, alpha * 0.45);
         ctx.arc(r.x, r.y, radius * 0.85, 0, Math.PI * 2);
         ctx.stroke();
       }
