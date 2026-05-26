@@ -1,0 +1,32 @@
+{% extends "admin/_layout.html" %}
+{% block admin_title %}Blog{% endblock %}
+{% block admin_heading %}Posts ({{ items|length }}){% endblock %}
+{% block admin_actions %}
+<a href="/admin/posts/new" class="btn btn-primary btn-glow"><i class="fa-solid fa-plus"></i> Nuevo post</a>
+{% endblock %}
+{% block admin_content %}
+<div class="admin-card">
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>ID</th><th>Titulo</th><th>Categoria</th><th>Autor</th><th>Fecha</th><th></th></tr></thead>
+      <tbody>
+        {% for p in items %}
+        <tr>
+          <td>{{ p.id }}</td>
+          <td><strong>{{ p.title }}</strong></td>
+          <td><span class="chip chip-soft">{{ p.category }}</span></td>
+          <td>{{ p.author }}</td>
+          <td>{{ p.publish_date.strftime('%Y-%m-%d') }}</td>
+          <td class="row-actions">
+            <a href="/admin/posts/{{ p.id }}/edit" class="btn btn-sm btn-outline"><i class="fa-solid fa-pen"></i></a>
+            <form method="post" action="/admin/posts/{{ p.id }}/delete" onsubmit="return confirm('Eliminar?')" style="display:inline">
+              <button class="btn btn-sm" style="background:#dc2626;color:#fff;border-color:#dc2626"><i class="fa-solid fa-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

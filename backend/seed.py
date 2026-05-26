@@ -11,11 +11,32 @@ from datetime import date, datetime, timedelta
 
 from sqlalchemy.orm import Session
 
+from config import settings
 from database import Base, engine, SessionLocal
-from models import Category, Product, Project, Testimonial, BlogPost
+from models import Category, Product, Project, Testimonial, BlogPost, User
+from security import hash_password
 from utils import slugify
 
 logger = logging.getLogger("aquaterra.seed")
+
+
+def seed_admin(db: Session) -> None:
+    """Ensure a default admin user exists. Idempotent."""
+    existing = db.query(User).filter(User.is_admin == True).first()
+    if existing:
+        logger.info("Admin already exists: %s", existing.username)
+        return
+    admin = User(
+        username=settings.ADMIN_USERNAME.lower(),
+        email=settings.ADMIN_EMAIL.lower(),
+        password_hash=hash_password(settings.ADMIN_PASSWORD),
+        full_name="Administrador Aqua-Terra",
+        is_admin=True,
+        is_active=True,
+    )
+    db.add(admin)
+    db.commit()
+    logger.info("Default admin user created: %s / (env ADMIN_PASSWORD)", admin.username)
 
 
 CATEGORIES = [
@@ -276,6 +297,8 @@ BLOG_POSTS = [
 
 
 def seed_if_empty(db: Session) -> None:
+    # Always make sure an admin exists (independent of catalog seed).
+    seed_admin(db)
     existing = db.query(Category).count()
     if existing:
         logger.info("Seed skipped: %s categorias ya existen.", existing)

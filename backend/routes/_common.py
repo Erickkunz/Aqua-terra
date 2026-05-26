@@ -109,6 +109,11 @@ def base_ctx(request: Request, **extra):
         "cart_count": sum(cart.values()) if isinstance(cart, dict) else 0,
         "wishlist_count": len(wishlist),
         "current_year": 2026,
+        # Session-derived auth flags (lightweight, no DB hit for nav rendering)
+        "current_user_id": request.session.get("user_id"),
+        "current_username": request.session.get("username"),
+        "is_admin": bool(request.session.get("is_admin")),
+        "is_authenticated": bool(request.session.get("user_id")),
     }
     ctx.update(extra)
     return ctx

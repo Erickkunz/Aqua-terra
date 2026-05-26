@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     SITE_TAGLINE: str = "Soluciones Integrales en Agua y Tierra"
     CONTACT_EMAIL: str = "contacto@aquaterra.com"
     CONTACT_PHONE: str = "+51 1 234 5678"
+    # Default admin (created on first boot if no admin exists)
+    ADMIN_USERNAME: str = "admin"
+    ADMIN_EMAIL: str = "admin@aquaterra.com"
+    ADMIN_PASSWORD: str = "AquaTerra2026!"
 
 
 @lru_cache

@@ -1,0 +1,48 @@
+{% extends "admin/_layout.html" %}
+{% block admin_title %}{{ item.name if item else 'Nuevo proyecto' }}{% endblock %}
+{% block admin_heading %}{{ 'Editar proyecto' if item else 'Nuevo proyecto' }}{% endblock %}
+{% block admin_content %}
+<form method="post" action="/admin/projects/save" class="admin-card form-stack">
+  <input type="hidden" name="id" value="{{ item.id if item else '' }}">
+  <label>Nombre <input type="text" name="name" required value="{{ item.name if item else '' }}"></label>
+  <div class="form-row">
+    <label>Pais <input type="text" name="country" value="{{ item.country if item else '' }}"></label>
+    <label>Region <input type="text" name="region" value="{{ item.region if item else '' }}"></label>
+  </div>
+  <div class="form-row">
+    <label>Tipo cliente
+      <select name="client_type">
+        {% for v in ['agro','municipal','industrial','ambiental'] %}
+        <option value="{{ v }}" {% if item and item.client_type == v %}selected{% endif %}>{{ v }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Tecnologia
+      <select name="technology">
+        {% for v in ['drip','pivot','tratamiento','iot','renovables'] %}
+        <option value="{{ v }}" {% if item and item.technology == v %}selected{% endif %}>{{ v }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </div>
+  <label>Resumen <input type="text" name="summary" value="{{ item.summary if item else '' }}"></label>
+  <label>Descripcion <textarea name="description" rows="4">{{ item.description if item else '' }}</textarea></label>
+  <div class="form-row">
+    <label>m3 ahorrados <input type="number" name="water_saved_m3" value="{{ item.water_saved_m3 if item else 0 }}"></label>
+    <label>Hectareas <input type="number" name="hectares" value="{{ item.hectares if item else 0 }}"></label>
+  </div>
+  <div class="form-row">
+    <label>CO2 reducido (t) <input type="number" name="co2_reduced_t" value="{{ item.co2_reduced_t if item else 0 }}"></label>
+    <label>Duracion (meses) <input type="number" name="duration_months" value="{{ item.duration_months if item else 0 }}"></label>
+  </div>
+  <div class="form-row">
+    <label>Latitud <input type="number" step="0.000001" name="latitude" value="{{ item.latitude if item else 0 }}"></label>
+    <label>Longitud <input type="number" step="0.000001" name="longitude" value="{{ item.longitude if item else 0 }}"></label>
+  </div>
+  <label class="check-inline"><input type="checkbox" name="is_featured" {% if item and item.is_featured %}checked{% endif %}> Destacado</label>
+  <div class="flex-between">
+    <a href="/admin/projects" class="btn btn-ghost"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+    <button class="btn btn-primary btn-glow"><i class="fa-solid fa-save"></i> Guardar</button>
+  </div>
+</form>
+{% endblock %}

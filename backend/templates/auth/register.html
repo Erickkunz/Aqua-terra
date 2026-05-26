@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Crear cuenta - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+  <div class="container">
+    <div class="auth-card" data-aos="fade-up">
+      <div class="auth-brand">
+        <img src="/static/img/logo.svg" alt="{{ site_name }}" class="auth-logo">
+        <h1>Crea tu cuenta</h1>
+        <p class="muted">Unete a la comunidad {{ site_name }}</p>
+      </div>
+
+      {% if error %}
+      <div class="auth-error">
+        <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+      </div>
+      {% endif %}
+
+      <form method="post" action="/register" class="auth-form">
+        <label>
+          <span>Nombre completo</span>
+          <input type="text" name="full_name" value="{{ values.full_name or '' }}" maxlength="160">
+        </label>
+
+        <div class="form-row">
+          <label>
+            <span>Usuario</span>
+            <input type="text" name="username" value="{{ values.username or '' }}" required
+                   minlength="3" maxlength="80" pattern="[a-zA-Z0-9_.\-]+"
+                   autocomplete="username">
+          </label>
+
+          <label>
+            <span>Email</span>
+            <input type="email" name="email" value="{{ values.email or '' }}" required autocomplete="email">
+          </label>
+        </div>
+
+        <label>
+          <span>Contrasena</span>
+          <input type="password" name="password" required minlength="6" autocomplete="new-password">
+          <small class="muted">Minimo 6 caracteres</small>
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-block btn-glow">
+          <i class="fa-solid fa-user-plus"></i> Crear cuenta
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <span class="muted">Ya tienes cuenta?</span>
+        <a href="/login" class="link-arrow">Iniciar sesion <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

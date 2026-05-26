@@ -1,0 +1,54 @@
+{% extends "admin/_layout.html" %}
+{% block admin_title %}Usuarios{% endblock %}
+{% block admin_heading %}Usuarios ({{ items|length }}){% endblock %}
+{% block admin_content %}
+<div class="admin-card">
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>ID</th><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Registro</th><th></th></tr></thead>
+      <tbody>
+        {% for u in items %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>
+            <strong>{{ u.username }}</strong>
+            {% if u.full_name %}<br><small class="muted">{{ u.full_name }}</small>{% endif %}
+          </td>
+          <td>{{ u.email }}</td>
+          <td>
+            {% if u.is_admin %}
+              <span class="chip" style="background:#7c3aed">ADMIN</span>
+            {% else %}
+              <span class="chip chip-soft">user</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if u.is_active %}
+              <span class="chip chip-success">activo</span>
+            {% else %}
+              <span class="chip" style="background:#6b7280">inactivo</span>
+            {% endif %}
+          </td>
+          <td>{{ u.created_at.strftime('%Y-%m-%d') }}</td>
+          <td class="row-actions">
+            {% if u.id != current_user_id %}
+            <form method="post" action="/admin/users/{{ u.id }}/toggle-admin" style="display:inline">
+              <button class="btn btn-sm btn-outline" title="Toggle admin"><i class="fa-solid fa-user-shield"></i></button>
+            </form>
+            <form method="post" action="/admin/users/{{ u.id }}/toggle-active" style="display:inline">
+              <button class="btn btn-sm btn-outline" title="Toggle activo"><i class="fa-solid fa-power-off"></i></button>
+            </form>
+            <form method="post" action="/admin/users/{{ u.id }}/delete" onsubmit="return confirm('Eliminar usuario {{ u.username }}?')" style="display:inline">
+              <button class="btn btn-sm" style="background:#dc2626;color:#fff;border-color:#dc2626"><i class="fa-solid fa-trash"></i></button>
+            </form>
+            {% else %}
+            <span class="muted small">(tu cuenta)</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "admin/_layout.html" %}
+{% block admin_title %}Productos{% endblock %}
+{% block admin_heading %}Productos ({{ items|length }}){% endblock %}
+{% block admin_actions %}
+<a href="/admin/products/new" class="btn btn-primary btn-glow"><i class="fa-solid fa-plus"></i> Nuevo producto</a>
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-card">
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Nombre</th><th>Categoria</th><th>Precio</th><th>Stock</th><th>Featured</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in items %}
+        <tr>
+          <td>{{ p.id }}</td>
+          <td><strong>{{ p.name }}</strong><br><small class="muted">{{ p.slug }}</small></td>
+          <td>{{ p.category.name if p.category else '-' }}</td>
+          <td>${{ '%.2f' % p.price }}</td>
+          <td>{% if p.in_stock %}<span class="chip chip-success">Si</span>{% else %}<span class="chip" style="background:#dc2626">No</span>{% endif %}</td>
+          <td>{% if p.is_featured %}<i class="fa-solid fa-star" style="color:#F59E0B"></i>{% endif %}</td>
+          <td class="row-actions">
+            <a href="/admin/products/{{ p.id }}/edit" class="btn btn-sm btn-outline"><i class="fa-solid fa-pen"></i></a>
+            <form method="post" action="/admin/products/{{ p.id }}/delete" onsubmit="return confirm('Eliminar producto {{ p.name }}?')" style="display:inline">
+              <button class="btn btn-sm" style="background:#dc2626;color:#fff;border-color:#dc2626"><i class="fa-solid fa-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="admin-card mt-2">
+  <h3><i class="fa-solid fa-tags"></i> Categorias</h3>
+  <div class="cats-grid">
+    {% for c in cats %}
+    <div class="cat-card">
+      <strong>{{ c.name }}</strong>
+      <small class="muted">{{ c.slug }} - {{ c.products|length }} prods</small>
+      <form method="post" action="/admin/categories/{{ c.id }}/delete" onsubmit="return confirm('Eliminar categoria {{ c.name }} (incluye {{ c.products|length }} productos)?')">
+        <button class="btn btn-sm btn-ghost"><i class="fa-solid fa-trash"></i></button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+
+  <details class="mt-2">
+    <summary><strong>+ Nueva categoria</strong></summary>
+    <form method="post" action="/admin/categories/save" class="form-stack mt-1">
+      <div class="form-row">
+        <label>Nombre <input type="text" name="name" required></label>
+        <label>Icono (fontawesome) <input type="text" name="icon" value="droplet"></label>
+      </div>
+      <label>Descripcion <input type="text" name="description"></label>
+      <button class="btn btn-primary">Crear categoria</button>
+    </form>
+  </details>
+</div>
+{% endblock %}

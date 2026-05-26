@@ -2,24 +2,28 @@
 <aside class="sidebar" id="sidebar" aria-label="Navegacion principal">
   <div class="sidebar-top">
     <a href="/" class="sidebar-brand" aria-label="{{ site_name }} - inicio">
-      <span class="brand-mark"><i class="fa-solid fa-droplet"></i></span>
+      <span class="brand-mark">
+        <img src="/static/img/logo-mark.svg" alt="" width="32" height="32">
+      </span>
       <span class="brand-name">{{ site_name }}</span>
     </a>
     <button class="sidebar-collapse-btn" id="sidebarCollapse" aria-label="Colapsar menu" title="Colapsar">
-      <i class="fa-solid fa-angles-left"></i>
+      <span class="collapse-icon" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </span>
     </button>
   </div>
 
   <nav class="sidebar-nav">
-    <a href="/" class="sidebar-link {% if path == '/' %}active{% endif %}">
+    <a href="/" class="sidebar-link {% if path == '/' %}active{% endif %}" data-tip="Inicio">
       <i class="fa-solid fa-house"></i><span>Inicio</span>
     </a>
-    <a href="/about" class="sidebar-link {% if path == '/about' %}active{% endif %}">
+    <a href="/about" class="sidebar-link {% if path == '/about' %}active{% endif %}" data-tip="Nosotros">
       <i class="fa-solid fa-users-line"></i><span>Nosotros</span>
     </a>
 
     <div class="sidebar-group">
-      <button class="sidebar-link sidebar-group-trigger {% if path.startswith('/pillars') %}active{% endif %}" data-group="pillars" aria-expanded="{% if path.startswith('/pillars') %}true{% else %}false{% endif %}">
+      <button class="sidebar-link sidebar-group-trigger {% if path.startswith('/pillars') %}active{% endif %}" data-group="pillars" data-tip="Pilares" aria-expanded="{% if path.startswith('/pillars') %}true{% else %}false{% endif %}">
         <i class="fa-solid fa-layer-group"></i><span>Pilares</span>
         <i class="fa-solid fa-chevron-down chevron"></i>
       </button>
@@ -33,21 +37,27 @@
       </div>
     </div>
 
-    <a href="/shop" class="sidebar-link {% if path.startswith('/shop') and not path.startswith('/shop/wishlist') and not path.startswith('/shop/cart') %}active{% endif %}">
+    <a href="/shop" class="sidebar-link {% if path.startswith('/shop') and not path.startswith('/shop/wishlist') and not path.startswith('/shop/cart') %}active{% endif %}" data-tip="Tienda">
       <i class="fa-solid fa-bag-shopping"></i><span>Tienda</span>
     </a>
-    <a href="/projects" class="sidebar-link {% if path.startswith('/projects') %}active{% endif %}">
+    <a href="/projects" class="sidebar-link {% if path.startswith('/projects') %}active{% endif %}" data-tip="Proyectos">
       <i class="fa-solid fa-folder-tree"></i><span>Proyectos</span>
     </a>
-    <a href="/blog" class="sidebar-link {% if path.startswith('/blog') %}active{% endif %}">
+    <a href="/blog" class="sidebar-link {% if path.startswith('/blog') %}active{% endif %}" data-tip="Blog">
       <i class="fa-solid fa-newspaper"></i><span>Blog</span>
     </a>
-    <a href="/dashboard" class="sidebar-link {% if path.startswith('/dashboard') %}active{% endif %}">
+    <a href="/dashboard" class="sidebar-link {% if path.startswith('/dashboard') %}active{% endif %}" data-tip="Impacto">
       <i class="fa-solid fa-chart-line"></i><span>Impacto</span>
     </a>
-    <a href="/contact" class="sidebar-link {% if path.startswith('/contact') %}active{% endif %}">
+    <a href="/contact" class="sidebar-link {% if path.startswith('/contact') %}active{% endif %}" data-tip="Contacto">
       <i class="fa-solid fa-envelope"></i><span>Contacto</span>
     </a>
+
+    {% if is_admin %}
+    <a href="/admin" class="sidebar-link sidebar-link-admin {% if path.startswith('/admin') %}active{% endif %}" data-tip="Admin">
+      <i class="fa-solid fa-shield-halved"></i><span>Admin</span>
+    </a>
+    {% endif %}
   </nav>
 
   <div class="sidebar-foot">
@@ -61,9 +71,25 @@
         <span class="badge" id="cartBadge">{{ cart_count }}</span>
       </a>
     </div>
-    <a href="/contact" class="btn btn-primary btn-block btn-sm sidebar-cta">
-      <i class="fa-solid fa-paper-plane"></i><span>Solicitar propuesta</span>
+
+    {% if is_authenticated %}
+    <div class="sidebar-user" data-tip="{{ current_username }}">
+      <div class="sidebar-user-avatar">{{ (current_username or '?')[0]|upper }}</div>
+      <div class="sidebar-user-info">
+        <strong>{{ current_username }}</strong>
+        {% if is_admin %}<small>Administrador</small>{% else %}<small>Usuario</small>{% endif %}
+      </div>
+      <form method="post" action="/logout" class="sidebar-user-logout">
+        <button type="submit" title="Cerrar sesion" aria-label="Cerrar sesion">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </button>
+      </form>
+    </div>
+    {% else %}
+    <a href="/login" class="btn btn-primary btn-block btn-sm sidebar-cta btn-glow" data-tip="Iniciar sesion">
+      <i class="fa-solid fa-right-to-bracket"></i><span>Iniciar sesion</span>
     </a>
+    {% endif %}
   </div>
 </aside>
 
@@ -72,7 +98,7 @@
     <i class="fa-solid fa-bars"></i>
   </button>
   <a href="/" class="topbar-brand">
-    <span class="brand-mark"><i class="fa-solid fa-droplet"></i></span>
+    <span class="brand-mark"><img src="/static/img/logo-mark.svg" alt="" width="28" height="28"></span>
     <span class="brand-name">{{ site_name }}</span>
   </a>
   <div class="topbar-icons">
@@ -84,7 +110,18 @@
       <i class="fa-solid fa-bag-shopping"></i>
       <span class="badge">{{ cart_count }}</span>
     </a>
+    {% if is_authenticated %}
+    <a href="{% if is_admin %}/admin{% else %}/{% endif %}" class="topbar-icon" aria-label="Cuenta" title="{{ current_username }}">
+      <i class="fa-solid fa-user-circle"></i>
+    </a>
+    {% else %}
+    <a href="/login" class="topbar-icon" aria-label="Iniciar sesion" title="Iniciar sesion">
+      <i class="fa-solid fa-right-to-bracket"></i>
+    </a>
+    {% endif %}
   </div>
 </header>
 
 <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
+
+<canvas id="cursorCanvas" aria-hidden="true"></canvas>

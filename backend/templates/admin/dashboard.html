@@ -1,0 +1,51 @@
+{% extends "admin/_layout.html" %}
+{% block admin_title %}Dashboard{% endblock %}
+{% block admin_heading %}Bienvenido, {{ admin.full_name or admin.username }}{% endblock %}
+
+{% block admin_content %}
+<div class="admin-stats">
+  <div class="admin-stat"><i class="fa-solid fa-users"></i><strong>{{ stats.users }}</strong><span>Usuarios</span></div>
+  <div class="admin-stat"><i class="fa-solid fa-boxes-stacked"></i><strong>{{ stats.products }}</strong><span>Productos</span></div>
+  <div class="admin-stat"><i class="fa-solid fa-tags"></i><strong>{{ stats.categories }}</strong><span>Categorias</span></div>
+  <div class="admin-stat"><i class="fa-solid fa-folder-tree"></i><strong>{{ stats.projects }}</strong><span>Proyectos</span></div>
+  <div class="admin-stat"><i class="fa-solid fa-newspaper"></i><strong>{{ stats.posts }}</strong><span>Posts</span></div>
+  <div class="admin-stat"><i class="fa-solid fa-comment-dots"></i><strong>{{ stats.testimonials }}</strong><span>Testimonios</span></div>
+  <div class="admin-stat"><i class="fa-solid fa-envelope"></i><strong>{{ stats.contacts }}</strong><span>Contactos</span></div>
+  <div class="admin-stat"><i class="fa-solid fa-file-invoice-dollar"></i><strong>{{ stats.quotes }}</strong><span>Cotizaciones</span></div>
+  <div class="admin-stat"><i class="fa-solid fa-paper-plane"></i><strong>{{ stats.subscribers }}</strong><span>Suscriptores</span></div>
+</div>
+
+<div class="admin-grid">
+  <div class="admin-card">
+    <h3><i class="fa-solid fa-envelope-open-text"></i> Ultimos contactos</h3>
+    {% if recent_contacts %}
+    <ul class="admin-list">
+      {% for c in recent_contacts %}
+      <li>
+        <strong>{{ c.name }}</strong> <small class="muted">&lt;{{ c.email }}&gt;</small>
+        <p class="muted small">{{ c.message[:120] }}{% if c.message|length > 120 %}...{% endif %}</p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">Sin contactos aun.</p>
+    {% endif %}
+  </div>
+
+  <div class="admin-card">
+    <h3><i class="fa-solid fa-file-invoice-dollar"></i> Ultimas cotizaciones</h3>
+    {% if recent_quotes %}
+    <ul class="admin-list">
+      {% for q in recent_quotes %}
+      <li>
+        <strong>#{{ q.id }} - {{ q.name }}</strong>
+        <span class="chip chip-soft">${{ '%.2f' % q.estimated_total }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">Sin cotizaciones aun.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

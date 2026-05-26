@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Iniciar sesion - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+  <div class="container">
+    <div class="auth-card" data-aos="fade-up">
+      <div class="auth-brand">
+        <img src="/static/img/logo.svg" alt="{{ site_name }}" class="auth-logo">
+        <h1>Bienvenido de vuelta</h1>
+        <p class="muted">Accede a tu cuenta {{ site_name }}</p>
+      </div>
+
+      {% if error %}
+      <div class="auth-error">
+        <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+      </div>
+      {% endif %}
+
+      <form method="post" action="/login" class="auth-form">
+        <input type="hidden" name="next" value="{{ next_url or '/' }}">
+
+        <label>
+          <span>Usuario o email</span>
+          <input type="text" name="username" required autocomplete="username" autofocus>
+        </label>
+
+        <label>
+          <span>Contrasena</span>
+          <input type="password" name="password" required autocomplete="current-password" minlength="1">
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-block btn-glow">
+          <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesion
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <span class="muted">No tienes cuenta?</span>
+        <a href="/register" class="link-arrow">Registrate <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

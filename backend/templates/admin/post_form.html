@@ -1,0 +1,23 @@
+{% extends "admin/_layout.html" %}
+{% block admin_title %}{{ item.title if item else 'Nuevo post' }}{% endblock %}
+{% block admin_heading %}{{ 'Editar post' if item else 'Nuevo post' }}{% endblock %}
+{% block admin_content %}
+<form method="post" action="/admin/posts/save" class="admin-card form-stack">
+  <input type="hidden" name="id" value="{{ item.id if item else '' }}">
+  <label>Titulo <input type="text" name="title" required value="{{ item.title if item else '' }}"></label>
+  <div class="form-row">
+    <label>Categoria <input type="text" name="category" value="{{ item.category if item else 'Tendencias' }}"></label>
+    <label>Autor <input type="text" name="author" value="{{ item.author if item else 'Equipo Aqua-Terra' }}"></label>
+  </div>
+  <label>Imagen portada (URL) <input type="text" name="cover_image" value="{{ item.cover_image if item else '' }}"></label>
+  <label>Extracto <textarea name="excerpt" rows="2">{{ item.excerpt if item else '' }}</textarea></label>
+  <label>Contenido (HTML)
+    <textarea name="content" rows="14" style="font-family:monospace;font-size:.9rem">{{ item.content if item else '' }}</textarea>
+  </label>
+  <label>Tiempo de lectura (min) <input type="number" name="read_time_min" value="{{ item.read_time_min if item else 4 }}"></label>
+  <div class="flex-between">
+    <a href="/admin/posts" class="btn btn-ghost"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+    <button class="btn btn-primary btn-glow"><i class="fa-solid fa-save"></i> Guardar</button>
+  </div>
+</form>
+{% endblock %}

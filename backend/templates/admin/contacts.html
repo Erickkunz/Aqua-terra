@@ -1,0 +1,53 @@
+{% extends "admin/_layout.html" %}
+{% block admin_title %}Contactos{% endblock %}
+{% block admin_heading %}Mensajes y cotizaciones{% endblock %}
+{% block admin_content %}
+<div class="admin-card">
+  <h3><i class="fa-solid fa-envelope-open-text"></i> Contactos ({{ items|length }})</h3>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>ID</th><th>Nombre</th><th>Email</th><th>Tipo</th><th>Mensaje</th></tr></thead>
+      <tbody>
+        {% for c in items %}
+        <tr>
+          <td>{{ c.id }}</td>
+          <td>{{ c.name }}</td>
+          <td>{{ c.email }}</td>
+          <td><span class="chip chip-soft">{{ c.inquiry_type }}</span></td>
+          <td><small>{{ c.message[:200] }}{% if c.message|length > 200 %}...{% endif %}</small></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="admin-card mt-2">
+  <h3><i class="fa-solid fa-file-invoice-dollar"></i> Cotizaciones ({{ quotes|length }})</h3>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>ID</th><th>Nombre</th><th>Empresa</th><th>Total</th><th>Items</th></tr></thead>
+      <tbody>
+        {% for q in quotes %}
+        <tr>
+          <td>{{ q.id }}</td>
+          <td>{{ q.name }}<br><small class="muted">{{ q.email }}</small></td>
+          <td>{{ q.company }}</td>
+          <td><strong>${{ '%.2f' % q.estimated_total }}</strong></td>
+          <td>{{ q.items|length }} productos</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="admin-card mt-2">
+  <h3><i class="fa-solid fa-paper-plane"></i> Suscriptores newsletter ({{ subs|length }})</h3>
+  <ul class="admin-list">
+    {% for s in subs %}
+    <li>{{ s.email }} <small class="muted">({{ s.source }})</small></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
