@@ -227,15 +227,52 @@ body.sidebar-collapsed .sidebar-collapse-btn i { transform: none !important; }
 }
 .sidebar-icons { gap: .5rem !important; }
 .sidebar-icon {
-  background: rgba(255,255,255,.04) !important;
-  border: 1px solid rgba(61, 217, 214, .15);
-  transition: all .25s;
+  position: relative;
+  background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(61,217,214,.06)) !important;
+  border: 1px solid rgba(61, 217, 214, .18) !important;
+  border-radius: 12px !important;
+  color: rgba(255,255,255,.85) !important;
+  transition: all .3s cubic-bezier(.34,1.56,.64,1) !important;
+  overflow: hidden;
 }
+.sidebar-icon::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at center, var(--aqua-glow), transparent 70%);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.sidebar-icon:hover::before { opacity: .55; }
 .sidebar-icon:hover {
-  background: linear-gradient(135deg, rgba(61, 217, 214, .25), rgba(46, 117, 182, .25)) !important;
-  border-color: rgba(61, 217, 214, .55);
-  box-shadow: 0 0 12px var(--aqua-glow);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(61, 217, 214, .25), rgba(46, 117, 182, .35)) !important;
+  border-color: rgba(61, 217, 214, .65) !important;
+  box-shadow: 0 0 16px var(--aqua-glow), 0 8px 22px rgba(61,217,214,.25);
+  transform: translateY(-3px) scale(1.04);
+  color: #fff !important;
+}
+.sidebar-icon i { position: relative; z-index: 1; transition: transform .3s; }
+.sidebar-icon:hover i { transform: scale(1.15); }
+.sidebar-icon .badge {
+  background: linear-gradient(135deg, var(--terra-lime), var(--accent)) !important;
+  box-shadow: 0 0 8px rgba(112,173,71,.55);
+  border: 2px solid var(--aqua-darker);
+  z-index: 2;
+}
+
+/* Sidebar CTA (login when guest) - polished futuristic */
+.sidebar-cta.btn-glow {
+  padding: .7rem .9rem !important;
+  font-size: .85rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  border-radius: 12px !important;
+}
+body.sidebar-collapsed .sidebar-cta.btn-glow span { display: none; }
+body.sidebar-collapsed .sidebar-cta.btn-glow {
+  padding: .7rem !important;
+  width: 100% !important;
+  justify-content: center;
 }
 
 /* Sidebar user card */
