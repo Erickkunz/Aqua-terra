@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="container hero-grid">
+    <div class="hero-copy" data-aos="fade-up">
+      <span class="eyebrow">{{ site_tagline }}</span>
+      <h1>Agua inteligente para un futuro <span class="accent">sostenible</span>.</h1>
+      <p class="lead">
+        Diseñamos, equipamos y operamos soluciones de riego que reducen el consumo de agua hasta un 60%,
+        combinando consultoria experta, tecnologia IoT y distribucion de equipos certificados.
+      </p>
+      <div class="hero-cta">
+        <a href="/contact" class="btn btn-primary btn-lg">Solicitar propuesta</a>
+        <a href="/projects" class="btn btn-ghost btn-lg">Ver proyectos</a>
+      </div>
+      <div class="hero-trust">
+        <div><strong>+500</strong><span>Proyectos</span></div>
+        <div><strong>18</strong><span>Paises</span></div>
+        <div><strong>12M m3</strong><span>Agua ahorrada</span></div>
+      </div>
+    </div>
+    <div class="hero-visual" data-aos="fade-left">
+      <div class="hero-card hero-card-1">
+        <i class="fa-solid fa-droplet"></i>
+        <div><strong>-58%</strong><small>consumo de agua</small></div>
+      </div>
+      <div class="hero-card hero-card-2">
+        <i class="fa-solid fa-bolt"></i>
+        <div><strong>+34%</strong><small>productividad</small></div>
+      </div>
+      <div class="hero-card hero-card-3">
+        <i class="fa-solid fa-leaf"></i>
+        <div><strong>-2.1k t</strong><small>CO2 evitado</small></div>
+      </div>
+      <div class="hero-circle"></div>
+    </div>
+  </div>
+</section>
+
+<section class="container section" id="pillares">
+  <div class="section-head center">
+    <span class="eyebrow">Nuestros pilares</span>
+    <h2>Cuatro frentes, una mision</h2>
+    <p class="muted">Integramos I+D, consultoria, equipos y alianzas internacionales para resolver el desafio hidrico.</p>
+  </div>
+  <div class="grid grid-4">
+    {% for p in pillars %}
+    <a href="/pillars/{{ p.slug }}" class="pillar-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 80 }}" style="--accent:{{ p.color }}">
+      <div class="pillar-num">0{{ p.number }}</div>
+      <div class="pillar-icon"><i class="fa-solid fa-{{ p.icon }}"></i></div>
+      <h3>{{ p.name }}</h3>
+      <p>{{ p.short }}</p>
+      <span class="link-arrow">Explorar <i class="fa-solid fa-arrow-right"></i></span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section bg-soft">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Proyectos recientes</span>
+      <h2>Casos que generan impacto</h2>
+    </div>
+    <div class="grid grid-2 grid-projects">
+      {% for proj in featured_projects %}
+      <a href="/projects/{{ proj.slug }}" class="project-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+        <div class="project-card-img" style="background-image:url('{{ proj.image_after or 'https://picsum.photos/seed/p' ~ proj.id ~ '/800/500' }}')"></div>
+        <div class="project-card-body">
+          <span class="chip">{{ proj.country }}</span>
+          <h3>{{ proj.name }}</h3>
+          <p>{{ proj.summary }}</p>
+          <div class="project-stats">
+            <span><i class="fa-solid fa-droplet"></i> {{ "{:,.0f}".format(proj.water_saved_m3) }} m3</span>
+            <span><i class="fa-solid fa-mountain"></i> {{ "{:,.0f}".format(proj.hectares) }} ha</span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    <div class="center mt-2"><a href="/projects" class="btn btn-outline">Ver todos los proyectos</a></div>
+  </div>
+</section>
+
+<section class="section impact-strip">
+  <div class="container grid grid-4 center">
+    <div data-aos="zoom-in">
+      <div class="counter" data-target="{{ stats.water_saved_m3 }}">0</div>
+      <small>m3 de agua ahorrada</small>
+    </div>
+    <div data-aos="zoom-in" data-aos-delay="80">
+      <div class="counter" data-target="{{ stats.hectares }}">0</div>
+      <small>hectareas tratadas</small>
+    </div>
+    <div data-aos="zoom-in" data-aos-delay="160">
+      <div class="counter" data-target="{{ stats.co2_reduced_t }}">0</div>
+      <small>toneladas de CO2 evitadas</small>
+    </div>
+    <div data-aos="zoom-in" data-aos-delay="240">
+      <div class="counter" data-target="{{ stats.projects_total }}">0</div>
+      <small>proyectos completados</small>
+    </div>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head center">
+    <span class="eyebrow">Productos destacados</span>
+    <h2>Equipamiento que ya esta operando</h2>
+  </div>
+  <div class="grid grid-4 grid-products">
+    {% for p in featured_products %}
+    <div class="product-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+      <a href="/shop/products/{{ p.slug }}" class="product-img">
+        <img loading="lazy" src="{{ p.image_url or 'https://picsum.photos/seed/prod' ~ p.id ~ '/600/400' }}" alt="{{ p.name }}" />
+      </a>
+      <div class="product-body">
+        <span class="chip chip-soft">{{ p.category.name }}</span>
+        <h4><a href="/shop/products/{{ p.slug }}">{{ p.name }}</a></h4>
+        <div class="product-meta">
+          <div class="rating"><i class="fa-solid fa-star"></i> {{ "%.1f"|format(p.rating) }}</div>
+          <strong class="price">{{ p.currency }} {{ "{:,.0f}".format(p.price) }}</strong>
+        </div>
+        <button class="btn btn-primary btn-block btn-sm js-add-cart" data-product-id="{{ p.id }}">
+          <i class="fa-solid fa-cart-plus"></i> Agregar
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="center mt-2"><a href="/shop" class="btn btn-outline">Ver catalogo completo</a></div>
+</section>
+
+<section class="section bg-primary testimonial-section">
+  <div class="container">
+    <div class="section-head center light">
+      <span class="eyebrow">Lo que dicen los clientes</span>
+      <h2>Confianza construida en campo</h2>
+    </div>
+    <div class="testimonial-slider" id="testimonialSlider">
+      {% for t in testimonials %}
+      <div class="testimonial-slide {% if loop.first %}active{% endif %}">
+        <div class="testimonial-card">
+          <i class="fa-solid fa-quote-left"></i>
+          <p>"{{ t.text }}"</p>
+          <div class="testimonial-author">
+            <img src="{{ t.image_url or 'https://i.pravatar.cc/100?img=' ~ (50 + loop.index0) }}" alt="{{ t.client_name }}" />
+            <div>
+              <strong>{{ t.client_name }}</strong>
+              <small>{{ t.client_role }}{% if t.company %} - {{ t.company }}{% endif %}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="slider-controls center">
+      <button class="slider-prev" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+      <div class="slider-dots" id="testimonialDots"></div>
+      <button class="slider-next" aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+  </div>
+</section>
+
+<section class="section cta-section">
+  <div class="container cta-card" data-aos="zoom-in">
+    <div>
+      <h2>Listos para reducir tu huella hidrica.</h2>
+      <p>Agenda una sesion con nuestros consultores y recibe un diagnostico inicial sin costo.</p>
+    </div>
+    <div class="cta-actions">
+      <a href="/contact" class="btn btn-primary btn-lg">Hablemos</a>
+      <a href="/shop" class="btn btn-ghost btn-lg">Ver catalogo</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

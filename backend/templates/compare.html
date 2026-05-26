@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Comparador - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <h1>Comparador de productos</h1>
+  {% if products %}
+  <div class="compare-table-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th></th>
+          {% for p in products %}
+          <th>
+            <img src="{{ p.image_url or 'https://picsum.photos/seed/cmp' ~ p.id ~ '/200/140' }}" alt="{{ p.name }}" />
+            <strong><a href="/shop/products/{{ p.slug }}">{{ p.name }}</a></strong>
+            <div class="price">{{ p.currency }} {{ "{:,.0f}".format(p.price) }}</div>
+            <button class="btn btn-primary btn-sm js-add-cart" data-product-id="{{ p.id }}"><i class="fa-solid fa-cart-plus"></i> Agregar</button>
+          </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th>Categoria</th>{% for p in products %}<td>{{ p.category.name }}</td>{% endfor %}</tr>
+        <tr><th>Rating</th>{% for p in products %}<td><i class="fa-solid fa-star"></i> {{ "%.1f"|format(p.rating) }}</td>{% endfor %}</tr>
+        <tr><th>Stock</th>{% for p in products %}<td>{% if p.in_stock %}<span class="chip chip-success">Disponible</span>{% else %}<span class="chip">Agotado</span>{% endif %}</td>{% endfor %}</tr>
+        {% set all_keys = [] %}
+        {% for p in products %}{% for k in p.specifications.keys() %}{% if k not in all_keys %}{% set _ = all_keys.append(k) %}{% endif %}{% endfor %}{% endfor %}
+        {% for k in all_keys %}
+        <tr><th>{{ k|replace('_', ' ')|capitalize }}</th>{% for p in products %}<td>{{ p.specifications.get(k, '-') }}</td>{% endfor %}</tr>
+        {% endfor %}
+        <tr><th>Features</th>{% for p in products %}<td><ul class="mini-list">{% for f in p.features %}<li>{{ f }}</li>{% endfor %}</ul></td>{% endfor %}</tr>
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state center">
+    <i class="fa-solid fa-scale-balanced"></i>
+    <h3>Selecciona productos para comparar</h3>
+    <p class="muted">Desde la tienda, usa el icono <i class="fa-solid fa-scale-balanced"></i> en hasta 4 productos.</p>
+    <a href="/shop" class="btn btn-primary">Ir a la tienda</a>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

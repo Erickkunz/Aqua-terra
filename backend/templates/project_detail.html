@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }} - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">{{ project.country }} - {{ project.region }}</span>
+    <h1>{{ project.name }}</h1>
+    <p class="lead">{{ project.summary }}</p>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="grid grid-2 ba-grid">
+    <figure data-aos="fade-right">
+      <span class="ba-tag">Antes</span>
+      <img src="{{ project.image_before or 'https://picsum.photos/seed/b' ~ project.id ~ '/800/500' }}" alt="Antes" />
+    </figure>
+    <figure data-aos="fade-left">
+      <span class="ba-tag">Despues</span>
+      <img src="{{ project.image_after or 'https://picsum.photos/seed/a' ~ project.id ~ '/800/500' }}" alt="Despues" />
+    </figure>
+  </div>
+
+  <div class="grid grid-4 impact-cards mt-2">
+    <div class="impact-card"><i class="fa-solid fa-droplet"></i><strong>{{ "{:,.0f}".format(project.water_saved_m3) }}</strong><small>m3 ahorrados</small></div>
+    <div class="impact-card"><i class="fa-solid fa-mountain"></i><strong>{{ "{:,.0f}".format(project.hectares) }}</strong><small>hectareas</small></div>
+    <div class="impact-card"><i class="fa-solid fa-leaf"></i><strong>{{ "{:,.0f}".format(project.co2_reduced_t) }}</strong><small>t CO2 evitadas</small></div>
+    <div class="impact-card"><i class="fa-solid fa-calendar"></i><strong>{{ project.duration_months }}</strong><small>meses</small></div>
+  </div>
+
+  <div class="grid grid-2 mt-2">
+    <article>
+      <h2>Sobre el proyecto</h2>
+      <p>{{ project.description }}</p>
+      <p><strong>Cliente:</strong> {{ project.client_type|capitalize }} - <strong>Tecnologia:</strong> {{ project.technology|capitalize }} - <strong>Cierre:</strong> {{ project.completion_date }}</p>
+    </article>
+    {% if project.testimonial_text %}
+    <blockquote class="big-quote">
+      <i class="fa-solid fa-quote-left"></i>
+      <p>"{{ project.testimonial_text }}"</p>
+      <footer>- {{ project.testimonial_author }}</footer>
+    </blockquote>
+    {% endif %}
+  </div>
+</section>
+
+{% if related %}
+<section class="section bg-soft">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">Otros proyectos</span><h2>Tambien podria interesarte</h2></div>
+    <div class="grid grid-3">
+      {% for p in related %}
+      <a href="/projects/{{ p.slug }}" class="project-card project-card-sm">
+        <div class="project-card-img" style="background-image:url('{{ p.image_after or 'https://picsum.photos/seed/r' ~ p.id ~ '/600/400' }}')"></div>
+        <div class="project-card-body">
+          <span class="chip">{{ p.country }}</span>
+          <h4>{{ p.name }}</h4>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

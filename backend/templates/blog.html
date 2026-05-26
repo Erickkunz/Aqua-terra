@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Blog - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Blog</span>
+    <h1>Tendencias, ciencia y casos</h1>
+    <p class="lead">Articulos tecnicos, actualizaciones de proyectos y novedades de la industria hidrica.</p>
+  </div>
+</section>
+
+<section class="container section">
+  <form method="get" class="filter-bar">
+    <input type="text" name="search" placeholder="Buscar..." value="{{ filters.search }}" />
+    <select name="category">
+      <option value="">Todas las categorias</option>
+      {% for c in categories %}<option value="{{ c }}" {% if filters.category == c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+  </form>
+
+  <div class="grid grid-3 grid-blog mt-2">
+    {% for p in posts %}
+    <a href="/blog/{{ p.slug }}" class="blog-card" data-aos="fade-up" data-aos-delay="{{ (loop.index0 % 3) * 50 }}">
+      <div class="blog-card-img" style="background-image:url('{{ p.cover_image or 'https://picsum.photos/seed/b' ~ p.id ~ '/600/400' }}')"></div>
+      <div class="blog-card-body">
+        <span class="chip chip-soft">{{ p.category }}</span>
+        <h3>{{ p.title }}</h3>
+        <p>{{ p.excerpt }}</p>
+        <small class="muted">{{ p.author }} - {{ p.read_time_min }} min de lectura</small>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

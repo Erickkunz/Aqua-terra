@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ pillar.name }} - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero pillar-hero" style="--accent:{{ pillar.color }}">
+  <div class="container">
+    <span class="eyebrow">Pilar 0{{ pillar.number }}</span>
+    <h1><i class="fa-solid fa-{{ pillar.icon }}"></i> {{ pillar.name }}</h1>
+    <p class="lead">{{ pillar.long }}</p>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="grid grid-2">
+    <div data-aos="fade-right">
+      <h2>Lo que entregamos</h2>
+      <ul class="check-list">
+        {% for h in pillar.highlights %}
+        <li><i class="fa-solid fa-circle-check"></i> {{ h }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="callout-card" data-aos="fade-left">
+      <h3>Conversemos</h3>
+      <p>Agenda una sesion de descubrimiento con un especialista de este pilar.</p>
+      <a href="/contact?inquiry={{ pillar.slug }}&pillar={{ pillar.slug }}" class="btn btn-primary">Contactar especialista</a>
+    </div>
+  </div>
+</section>
+
+{% block pillar_extra %}{% endblock %}
+
+{% if related_projects %}
+<section class="section bg-soft">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">Proyectos relacionados</span><h2>Implementaciones recientes</h2></div>
+    <div class="grid grid-3">
+      {% for proj in related_projects %}
+      <a href="/projects/{{ proj.slug }}" class="project-card project-card-sm" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+        <div class="project-card-img" style="background-image:url('{{ proj.image_after or 'https://picsum.photos/seed/p' ~ proj.id ~ '/600/400' }}')"></div>
+        <div class="project-card-body">
+          <span class="chip">{{ proj.country }}</span>
+          <h4>{{ proj.name }}</h4>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

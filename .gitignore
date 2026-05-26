@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+.env
+.idea/
+.vscode/
+*.log
+backend/static/uploads/*
+!backend/static/uploads/.gitkeep

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="container section product-detail">
+  <nav class="crumbs"><a href="/shop">Tienda</a> / <a href="/shop?category={{ product.category.slug }}">{{ product.category.name }}</a> / <span>{{ product.name }}</span></nav>
+
+  <div class="grid grid-2 product-detail-grid">
+    <div class="product-media" data-aos="fade-right">
+      <img src="{{ product.image_url or 'https://picsum.photos/seed/p' ~ product.id ~ '/900/600' }}" alt="{{ product.name }}" />
+      {% if not product.in_stock %}
+      <div class="alert alert-warn">
+        Producto agotado.
+        <button class="btn btn-sm btn-outline" id="notifyMe">Avisarme cuando este disponible</button>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="product-info" data-aos="fade-left">
+      <span class="chip chip-soft">{{ product.category.name }}</span>
+      <h1>{{ product.name }}</h1>
+      <div class="rating-row">
+        <span class="rating"><i class="fa-solid fa-star"></i> {{ "%.1f"|format(product.rating) }}</span>
+        <span class="muted">({{ product.reviews_count }} reseñas)</span>
+      </div>
+      <p class="lead">{{ product.short_description }}</p>
+      <div class="price-block">
+        <strong class="price-lg">{{ product.currency }} {{ "{:,.0f}".format(product.price) }}</strong>
+        {% if product.bulk_discount %}
+        <small class="muted">Descuentos por volumen disponibles</small>
+        {% endif %}
+      </div>
+
+      <div class="qty-row">
+        <label>Cantidad</label>
+        <div class="qty-control">
+          <button type="button" class="qty-btn" id="qtyMinus">-</button>
+          <input type="number" id="qtyInput" value="1" min="1" max="999" />
+          <button type="button" class="qty-btn" id="qtyPlus">+</button>
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <button class="btn btn-primary btn-lg js-add-cart-qty" data-product-id="{{ product.id }}" {% if not product.in_stock %}disabled{% endif %}>
+          <i class="fa-solid fa-cart-plus"></i> Agregar al carrito
+        </button>
+        <button class="btn btn-outline btn-lg js-wishlist" data-product-id="{{ product.id }}"><i class="fa-regular fa-heart"></i></button>
+        <a href="/contact?inquiry=cotizacion" class="btn btn-ghost btn-lg">Solicitar cotizacion</a>
+      </div>
+
+      <ul class="feature-list">
+        {% for f in product.features %}<li><i class="fa-solid fa-check"></i> {{ f }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="product-tabs" data-aos="fade-up">
+    <div class="tab-buttons">
+      <button class="tab-btn active" data-tab="desc">Descripcion</button>
+      <button class="tab-btn" data-tab="specs">Especificaciones</button>
+      <button class="tab-btn" data-tab="bulk">Descuentos por volumen</button>
+      <button class="tab-btn" data-tab="downloads">Descargas</button>
+    </div>
+    <div class="tab-panel active" data-panel="desc">
+      <p>{{ product.description }}</p>
+    </div>
+    <div class="tab-panel" data-panel="specs">
+      <table class="spec-table">
+        {% for k, v in product.specifications.items() %}
+        <tr><th>{{ k|replace('_', ' ')|capitalize }}</th><td>{{ v }}</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+    <div class="tab-panel" data-panel="bulk">
+      {% if product.bulk_discount %}
+      <table class="spec-table">
+        <tr><th>Cantidad minima</th><th>Descuento</th></tr>
+        {% for q, d in product.bulk_discount.items() %}
+        <tr><td>{{ q }}+ unidades</td><td>{{ (d * 100)|round(0)|int }}%</td></tr>
+        {% endfor %}
+      </table>
+      {% else %}
+      <p class="muted">No aplica para este producto.</p>
+      {% endif %}
+    </div>
+    <div class="tab-panel" data-panel="downloads">
+      <ul class="download-list">
+        <li><a href="#"><i class="fa-solid fa-file-pdf"></i> Hoja tecnica (PDF, demo)</a></li>
+        <li><a href="#"><i class="fa-solid fa-file-pdf"></i> Manual de instalacion (PDF, demo)</a></li>
+        <li><a href="#"><i class="fa-solid fa-file-pdf"></i> Certificaciones (PDF, demo)</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+{% if related %}
+<section class="section bg-soft">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">Tambien podria interesarte</span><h2>Productos relacionados</h2></div>
+    <div class="grid grid-4 grid-products">
+      {% for p in related %}
+      <div class="product-card">
+        <a href="/shop/products/{{ p.slug }}" class="product-img">
+          <img loading="lazy" src="{{ p.image_url or 'https://picsum.photos/seed/p' ~ p.id ~ '/600/400' }}" alt="{{ p.name }}" />
+        </a>
+        <div class="product-body">
+          <h4><a href="/shop/products/{{ p.slug }}">{{ p.name }}</a></h4>
+          <strong class="price">{{ p.currency }} {{ "{:,.0f}".format(p.price) }}</strong>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/product.js"></script>
+{% endblock %}

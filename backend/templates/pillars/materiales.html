@@ -1,0 +1,34 @@
+{% extends "pillars/_pillar_base.html" %}
+
+{% block pillar_extra %}
+<section class="container section">
+  <div class="section-head"><span class="eyebrow">Catalogo</span><h2>Productos destacados</h2></div>
+  <div class="grid grid-3 grid-products">
+    {% for p in related_products %}
+    <div class="product-card">
+      <a href="/shop/products/{{ p.slug }}" class="product-img">
+        <img loading="lazy" src="{{ p.image_url or 'https://picsum.photos/seed/m' ~ p.id ~ '/600/400' }}" alt="{{ p.name }}" />
+      </a>
+      <div class="product-body">
+        <span class="chip chip-soft">{{ p.category.name }}</span>
+        <h4><a href="/shop/products/{{ p.slug }}">{{ p.name }}</a></h4>
+        <strong class="price">{{ p.currency }} {{ "{:,.0f}".format(p.price) }}</strong>
+        <a href="/shop/products/{{ p.slug }}" class="btn btn-primary btn-sm btn-block">Ver ficha</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="center mt-2"><a href="/shop" class="btn btn-outline">Ver tienda completa</a></div>
+</section>
+
+<section class="section bg-soft">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">Postventa</span><h2>Garantia y servicio</h2></div>
+    <div class="grid grid-3">
+      <div class="feature-card"><i class="fa-solid fa-shield-halved"></i><h4>Garantia extendida</h4><p>3 a 5 anios segun categoria. Repuestos originales disponibles.</p></div>
+      <div class="feature-card"><i class="fa-solid fa-truck"></i><h4>Logistica regional</h4><p>Centros de distribucion en 4 paises. Tiempo medio: 5-10 dias.</p></div>
+      <div class="feature-card"><i class="fa-solid fa-headset"></i><h4>Soporte 24/7</h4><p>Mesa de ayuda tecnica con SLA de respuesta de 2 horas.</p></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "pillars/_pillar_base.html" %}
+
+{% block pillar_extra %}
+<section class="container section">
+  <div class="section-head"><span class="eyebrow">Servicios</span><h2>Diagnostico y modelado</h2></div>
+  <div class="grid grid-3">
+    <div class="feature-card"><i class="fa-solid fa-clipboard-list"></i><h4>Diagnostico hidrico</h4><p>Auditoria in-situ y reporte tecnico con recomendaciones priorizadas.</p></div>
+    <div class="feature-card"><i class="fa-solid fa-chart-pie"></i><h4>Modelado ROI</h4><p>Proyeccion financiera a 5 años con escenarios optimista, base y pesimista.</p></div>
+    <div class="feature-card"><i class="fa-solid fa-file-contract"></i><h4>Plan de inversion</h4><p>Hoja de ruta tecnologica con priorizacion por impacto / inversion.</p></div>
+  </div>
+</section>
+
+<section class="section bg-soft">
+  <div class="container">
+    <div class="section-head center"><span class="eyebrow">Herramienta interactiva</span><h2>Calculadora de ROI</h2></div>
+    <div class="roi-calculator" data-aos="fade-up">
+      <form id="roiForm" class="roi-form">
+        <div class="form-row">
+          <label>Hectareas <input type="number" name="hectares" min="1" max="5000" value="50" required /></label>
+          <label>Cultivo
+            <select name="crop">
+              <option value="cereales">Cereales</option>
+              <option value="frutales">Frutales</option>
+              <option value="hortalizas">Hortalizas</option>
+              <option value="vid">Vid</option>
+              <option value="caña">Caña de azucar</option>
+            </select>
+          </label>
+          <label>Clima
+            <select name="climate">
+              <option value="arido">Arido</option>
+              <option value="semiarido">Semi-arido</option>
+              <option value="templado">Templado</option>
+              <option value="humedo">Humedo</option>
+            </select>
+          </label>
+          <label>Sistema actual
+            <select name="current">
+              <option value="gravedad">Gravedad / inundacion</option>
+              <option value="aspersion">Aspersion</option>
+              <option value="goteo_basico">Goteo basico</option>
+            </select>
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary">Calcular</button>
+      </form>
+
+      <div class="roi-results" id="roiResults" hidden>
+        <div class="roi-kpis">
+          <div><strong id="roiSavings">0%</strong><small>ahorro de agua</small></div>
+          <div><strong id="roiAnnual">USD 0</strong><small>ahorro anual</small></div>
+          <div><strong id="roiPayback">0</strong><small>años payback</small></div>
+        </div>
+        <canvas id="roiChart" height="120"></canvas>
+        <div class="center mt-1"><a href="/contact?inquiry=consultoria" class="btn btn-outline">Contactar consultor</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/roi.js"></script>
+{% endblock %}

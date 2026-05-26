@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Dashboard de impacto - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Dashboard publico</span>
+    <h1>Nuestro impacto en tiempo real</h1>
+    <p class="lead">Sumando cada proyecto, asi se traduce nuestro trabajo en agua, tierra y atmosfera.</p>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="grid grid-5 impact-cards big-cards">
+    <div class="impact-card"><i class="fa-solid fa-droplet"></i><div class="counter" data-target="{{ totals.water_saved_m3 }}">0</div><small>m3 de agua ahorrada</small></div>
+    <div class="impact-card"><i class="fa-solid fa-mountain"></i><div class="counter" data-target="{{ totals.hectares }}">0</div><small>hectareas tratadas</small></div>
+    <div class="impact-card"><i class="fa-solid fa-leaf"></i><div class="counter" data-target="{{ totals.co2_reduced_t }}">0</div><small>t CO2 evitadas</small></div>
+    <div class="impact-card"><i class="fa-solid fa-folder-tree"></i><div class="counter" data-target="{{ totals.projects }}">0</div><small>proyectos completados</small></div>
+    <div class="impact-card"><i class="fa-solid fa-earth-americas"></i><div class="counter" data-target="{{ totals.countries }}">0</div><small>paises atendidos</small></div>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="grid grid-2 dashboard-grid">
+    <div class="chart-card">
+      <h3>Crecimiento anual (m3 ahorrados)</h3>
+      <canvas id="growthChart" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Distribucion por tecnologia</h3>
+      <canvas id="techChart" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Top paises por agua ahorrada</h3>
+      <canvas id="countryChart" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Mapa de impacto</h3>
+      <div id="impactMap" style="height:320px;border-radius:12px;overflow:hidden"></div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.__DASH = {
+    growth: {{ growth|tojson|safe }},
+    techDistribution: {{ tech_distribution|tojson|safe }},
+    byCountry: {{ by_country|tojson|safe }},
+    mapPoints: {{ map_points|tojson|safe }}
+  };
+</script>
+<script src="/static/js/dashboard.js"></script>
+{% endblock %}

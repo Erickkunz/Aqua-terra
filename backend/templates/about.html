@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Sobre nosotros - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Nuestra historia</span>
+    <h1>Una decada construyendo soluciones hidricas</h1>
+    <p class="lead">Somos un equipo multidisciplinario que combina ingenieria, ciencia de datos y experiencia internacional para acelerar la transicion hidrica.</p>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="grid grid-3 vmv">
+    <div data-aos="fade-up">
+      <i class="fa-solid fa-eye icon-xl"></i>
+      <h3>Vision</h3>
+      <p>Ser el socio hidrico de referencia en America Latina y otras regiones emergentes en 2030.</p>
+    </div>
+    <div data-aos="fade-up" data-aos-delay="80">
+      <i class="fa-solid fa-bullseye icon-xl"></i>
+      <h3>Mision</h3>
+      <p>Optimizar el uso del agua en agricultura, industria y ciudades mediante tecnologia y consultoria de excelencia.</p>
+    </div>
+    <div data-aos="fade-up" data-aos-delay="160">
+      <i class="fa-solid fa-handshake icon-xl"></i>
+      <h3>Valores</h3>
+      <p>Sostenibilidad, innovacion, confianza y vision global; principios que guian cada proyecto.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section bg-soft">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">Linea de tiempo</span>
+      <h2>De Lima al mundo</h2>
+    </div>
+    <ol class="timeline">
+      {% for item in timeline %}
+      <li class="timeline-item" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <strong>{{ item.year }}</strong>
+          <h4>{{ item.title }}</h4>
+          <p>{{ item.text }}</p>
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head center">
+    <span class="eyebrow">Equipo ejecutivo</span>
+    <h2>Las personas detras</h2>
+  </div>
+  <div class="grid grid-3 team-grid">
+    {% for m in team %}
+    <article class="team-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}">
+      <img loading="lazy" src="{{ m.image }}" alt="{{ m.name }}" />
+      <h4>{{ m.name }}</h4>
+      <span class="muted">{{ m.role }}</span>
+      <p>{{ m.bio }}</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section bg-soft">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">Valores</span>
+      <h2>Como trabajamos</h2>
+    </div>
+    <div class="grid grid-4">
+      {% for v in values %}
+      <div class="value-card" data-aos="zoom-in" data-aos-delay="{{ loop.index0 * 60 }}">
+        <i class="fa-solid fa-{{ v.icon }}"></i>
+        <h4>{{ v.title }}</h4>
+        <p>{{ v.text }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head center">
+    <span class="eyebrow">Alianzas y certificaciones</span>
+    <h2>Trabajamos con quienes mas saben</h2>
+  </div>
+  <div class="logo-grid">
+    {% for a in alliances %}
+    <div class="logo-chip">{{ a }}</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

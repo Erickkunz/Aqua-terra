@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Pilares - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Cuatro pilares</span>
+    <h1>Como integramos cada solucion</h1>
+    <p class="lead">Combinamos I+D, consultoria, distribucion de equipos y trabajo internacional para resolver desafios complejos.</p>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="grid grid-2 pillars-list">
+    {% for p in pillars %}
+    <a href="/pillars/{{ p.slug }}" class="pillar-card pillar-card-lg" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 80 }}" style="--accent:{{ p.color }}">
+      <div class="pillar-num">0{{ p.number }}</div>
+      <div class="pillar-icon"><i class="fa-solid fa-{{ p.icon }}"></i></div>
+      <h2>{{ p.name }}</h2>
+      <p>{{ p.long }}</p>
+      <ul>
+        {% for h in p.highlights %}<li><i class="fa-solid fa-check"></i> {{ h }}</li>{% endfor %}
+      </ul>
+      <span class="link-arrow">Conocer mas <i class="fa-solid fa-arrow-right"></i></span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

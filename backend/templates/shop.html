@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Tienda - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero compact">
+  <div class="container flex-between">
+    <div>
+      <span class="eyebrow">Catalogo</span>
+      <h1>Equipos y soluciones</h1>
+      <p class="muted">{{ total }} productos disponibles</p>
+    </div>
+    <a href="/shop/compare" class="btn btn-outline btn-sm"><i class="fa-solid fa-scale-balanced"></i> Comparador</a>
+  </div>
+</section>
+
+<section class="container section shop-layout">
+  <aside class="shop-filters" data-aos="fade-right">
+    <form method="get" action="/shop" class="filter-form" id="filterForm">
+      <div class="filter-group">
+        <label>Buscar</label>
+        <input type="text" name="search" placeholder="Bombas, IoT..." value="{{ filters.search }}" />
+      </div>
+      <div class="filter-group">
+        <label>Categoria</label>
+        <select name="category">
+          <option value="">Todas</option>
+          {% for c in categories %}
+          <option value="{{ c.slug }}" {% if filters.category == c.slug %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Precio</label>
+        <div class="range-row">
+          <input type="number" name="min_price" placeholder="Min" value="{{ filters.min_price or '' }}" />
+          <input type="number" name="max_price" placeholder="Max" value="{{ filters.max_price or '' }}" />
+        </div>
+      </div>
+      <div class="filter-group">
+        <label class="check-inline"><input type="checkbox" name="in_stock" value="true" {% if filters.in_stock %}checked{% endif %} /> Solo en stock</label>
+      </div>
+      <div class="filter-group">
+        <label>Ordenar</label>
+        <select name="sort">
+          <option value="featured" {% if filters.sort == 'featured' %}selected{% endif %}>Destacados</option>
+          <option value="price_asc" {% if filters.sort == 'price_asc' %}selected{% endif %}>Precio: menor a mayor</option>
+          <option value="price_desc" {% if filters.sort == 'price_desc' %}selected{% endif %}>Precio: mayor a menor</option>
+          <option value="rating" {% if filters.sort == 'rating' %}selected{% endif %}>Mejor valorados</option>
+          <option value="name" {% if filters.sort == 'name' %}selected{% endif %}>Nombre A-Z</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Aplicar filtros</button>
+      <a href="/shop" class="btn btn-ghost btn-block">Limpiar</a>
+    </form>
+  </aside>
+
+  <div class="shop-grid">
+    {% if products %}
+    <div class="grid grid-3 grid-products">
+      {% for p in products %}
+      <article class="product-card" data-product-id="{{ p.id }}" data-aos="fade-up" data-aos-delay="{{ (loop.index0 % 3) * 60 }}">
+        <a href="/shop/products/{{ p.slug }}" class="product-img">
+          <img loading="lazy" src="{{ p.image_url or 'https://picsum.photos/seed/p' ~ p.id ~ '/600/400' }}" alt="{{ p.name }}" />
+          {% if not p.in_stock %}<span class="badge-out">Agotado</span>{% endif %}
+        </a>
+        <div class="product-body">
+          <span class="chip chip-soft">{{ p.category.name }}</span>
+          <h4><a href="/shop/products/{{ p.slug }}">{{ p.name }}</a></h4>
+          <p class="muted small">{{ p.short_description }}</p>
+          <div class="product-meta">
+            <div class="rating"><i class="fa-solid fa-star"></i> {{ "%.1f"|format(p.rating) }}</div>
+            <strong class="price">{{ p.currency }} {{ "{:,.0f}".format(p.price) }}</strong>
+          </div>
+          <div class="product-actions">
+            <button class="btn btn-primary btn-sm js-add-cart" data-product-id="{{ p.id }}" {% if not p.in_stock %}disabled{% endif %}>
+              <i class="fa-solid fa-cart-plus"></i> Agregar
+            </button>
+            <button class="btn-icon js-wishlist" data-product-id="{{ p.id }}" aria-label="Wishlist"><i class="fa-regular fa-heart"></i></button>
+            <button class="btn-icon js-compare" data-product-id="{{ p.id }}" aria-label="Comparar"><i class="fa-solid fa-scale-balanced"></i></button>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    {% if pages > 1 %}
+    <nav class="pagination">
+      {% for n in range(1, pages + 1) %}
+      <a class="page {% if n == page %}active{% endif %}" href="?page={{ n }}{% if filters.category %}&category={{ filters.category }}{% endif %}{% if filters.search %}&search={{ filters.search }}{% endif %}&sort={{ filters.sort }}">{{ n }}</a>
+      {% endfor %}
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="empty-state center">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <h3>Sin resultados</h3>
+      <p>Probar con otros filtros o limpiarlos.</p>
+    </div>
+    {% endif %}
+
+    <div class="compare-bar" id="compareBar" hidden>
+      <span><strong id="compareCount">0</strong> productos seleccionados para comparar</span>
+      <div>
+        <button class="btn btn-ghost btn-sm" id="compareClear">Limpiar</button>
+        <a href="#" class="btn btn-primary btn-sm" id="compareGo">Comparar</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/shop.js"></script>
+{% endblock %}

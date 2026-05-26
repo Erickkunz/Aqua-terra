@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Proyectos - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Casos de exito</span>
+    <h1>Proyectos que generan impacto</h1>
+    <p class="lead">Explora implementaciones reales con resultados medidos en agua ahorrada, hectareas tratadas y CO2 evitado.</p>
+  </div>
+</section>
+
+<section class="container section">
+  <form method="get" class="filter-bar">
+    <select name="country">
+      <option value="">Todos los paises</option>
+      {% for c in countries %}<option value="{{ c }}" {% if filters.country == c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+    </select>
+    <select name="client_type">
+      <option value="">Todos los clientes</option>
+      {% for c in client_types %}<option value="{{ c }}" {% if filters.client_type == c %}selected{% endif %}>{{ c|capitalize }}</option>{% endfor %}
+    </select>
+    <select name="technology">
+      <option value="">Toda tecnologia</option>
+      {% for t in technologies %}<option value="{{ t }}" {% if filters.technology == t %}selected{% endif %}>{{ t|capitalize }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a href="/projects" class="btn btn-ghost">Limpiar</a>
+  </form>
+
+  <div id="projectsMap" class="projects-map" data-points='{{ map_points|tojson|safe }}'></div>
+
+  <div class="grid grid-3 grid-projects mt-2">
+    {% for p in projects %}
+    <a href="/projects/{{ p.slug }}" class="project-card" data-aos="fade-up" data-aos-delay="{{ (loop.index0 % 3) * 50 }}">
+      <div class="project-card-img" style="background-image:url('{{ p.image_after or 'https://picsum.photos/seed/p' ~ p.id ~ '/700/450' }}')"></div>
+      <div class="project-card-body">
+        <span class="chip">{{ p.country }}</span>
+        <span class="chip chip-soft">{{ p.technology|capitalize }}</span>
+        <h3>{{ p.name }}</h3>
+        <p>{{ p.summary }}</p>
+        <div class="project-stats">
+          <span><i class="fa-solid fa-droplet"></i> {{ "{:,.0f}".format(p.water_saved_m3) }} m3</span>
+          <span><i class="fa-solid fa-mountain"></i> {{ "{:,.0f}".format(p.hectares) }} ha</span>
+          <span><i class="fa-solid fa-leaf"></i> {{ "{:,.0f}".format(p.co2_reduced_t) }} t CO2</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/projects-map.js"></script>
+{% endblock %}

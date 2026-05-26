@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Favoritos - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="container section">
+  <h1>Mis favoritos</h1>
+  {% if products %}
+  <div class="grid grid-4 grid-products">
+    {% for p in products %}
+    <div class="product-card">
+      <a href="/shop/products/{{ p.slug }}" class="product-img">
+        <img loading="lazy" src="{{ p.image_url or 'https://picsum.photos/seed/w' ~ p.id ~ '/600/400' }}" alt="{{ p.name }}" />
+      </a>
+      <div class="product-body">
+        <h4><a href="/shop/products/{{ p.slug }}">{{ p.name }}</a></h4>
+        <strong class="price">{{ p.currency }} {{ "{:,.0f}".format(p.price) }}</strong>
+        <div class="product-actions">
+          <button class="btn btn-primary btn-sm js-add-cart" data-product-id="{{ p.id }}"><i class="fa-solid fa-cart-plus"></i></button>
+          <button class="btn btn-ghost btn-sm js-wishlist" data-product-id="{{ p.id }}"><i class="fa-solid fa-heart"></i> Quitar</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state center">
+    <i class="fa-regular fa-heart"></i>
+    <h3>Aun no tienes favoritos</h3>
+    <a href="/shop" class="btn btn-primary">Explorar catalogo</a>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

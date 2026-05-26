@@ -1,0 +1,34 @@
+{% extends "pillars/_pillar_base.html" %}
+
+{% block pillar_extra %}
+<section class="container section">
+  <div class="section-head"><span class="eyebrow">I+D activa</span><h2>Lineas de investigacion</h2></div>
+  <div class="grid grid-3">
+    <div class="feature-card" data-aos="fade-up">
+      <i class="fa-solid fa-microchip"></i><h4>Sensorica propia</h4>
+      <p>Sensores LoRa para humedad de suelo, caudal y calidad de agua, con autonomia de 5 años.</p>
+    </div>
+    <div class="feature-card" data-aos="fade-up" data-aos-delay="80">
+      <i class="fa-solid fa-brain"></i><h4>Modelos predictivos</h4>
+      <p>Algoritmos de demanda hidrica ajustados al cultivo y clima local.</p>
+    </div>
+    <div class="feature-card" data-aos="fade-up" data-aos-delay="160">
+      <i class="fa-solid fa-school"></i><h4>Universidades aliadas</h4>
+      <p>6 convenios activos para pilotos y publicacion conjunta de papers.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section bg-soft">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">Prototipos</span><h2>Galeria visual</h2></div>
+    <div class="gallery">
+      {% for i in range(6) %}
+      <div class="gallery-item" data-aos="zoom-in" data-aos-delay="{{ i * 50 }}">
+        <img loading="lazy" src="https://picsum.photos/seed/tech{{ i }}/500/350" alt="Prototipo {{ i+1 }}" />
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

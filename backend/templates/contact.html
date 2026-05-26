@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Contacto - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Hablemos</span>
+    <h1>Conversemos sobre tu proyecto hidrico</h1>
+    <p class="lead">Cuentanos en pocos minutos lo que buscas y un especialista te respondera en menos de 24 horas.</p>
+  </div>
+</section>
+
+<section class="container section contact-layout">
+  <form id="contactForm" class="form-stack contact-form" data-aos="fade-right">
+    <div class="form-row">
+      <label>Nombre completo <input type="text" name="name" required /></label>
+      <label>Email <input type="email" name="email" required /></label>
+    </div>
+    <div class="form-row">
+      <label>Telefono <input type="text" name="phone" /></label>
+      <label>Tipo de consulta
+        <select name="inquiry_type">
+          <option value="general" {% if preselect_inquiry == 'general' %}selected{% endif %}>General</option>
+          <option value="cotizacion" {% if preselect_inquiry == 'cotizacion' %}selected{% endif %}>Cotizacion</option>
+          <option value="tecnologia" {% if preselect_inquiry == 'tecnologia' %}selected{% endif %}>Tecnologia e Innovacion</option>
+          <option value="consultoria" {% if preselect_inquiry == 'consultoria' %}selected{% endif %}>Consultoria y Analisis</option>
+          <option value="materiales" {% if preselect_inquiry == 'materiales' %}selected{% endif %}>Materiales y Distribucion</option>
+          <option value="internacional" {% if preselect_inquiry == 'internacional' %}selected{% endif %}>Consultoria Internacional</option>
+          <option value="prensa">Prensa / Comunicacion</option>
+        </select>
+      </label>
+    </div>
+    <label>Pilar de interes (opcional)
+      <select name="pillar">
+        <option value="">--</option>
+        {% for p in pillars %}<option value="{{ p.slug }}" {% if preselect_pillar == p.slug %}selected{% endif %}>{{ p.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Mensaje <textarea name="message" rows="6" required></textarea></label>
+    <button type="submit" class="btn btn-primary btn-lg">Enviar mensaje</button>
+    <p id="contactMsg" class="form-msg"></p>
+  </form>
+
+  <aside class="contact-side" data-aos="fade-left">
+    <h3>Oficinas regionales</h3>
+    <div class="office-list">
+      {% for o in offices %}
+      <div class="office-card">
+        <strong>{{ o.city }}, {{ o.country }}</strong>
+        <p class="muted">{{ o.address }}</p>
+        <small><i class="fa-solid fa-phone"></i> {{ o.phone }}</small><br/>
+        <small><i class="fa-solid fa-envelope"></i> {{ o.email }}</small>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div id="officesMap" class="offices-map" data-offices='{{ offices|tojson|safe }}'></div>
+  </aside>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/contact.js"></script>
+{% endblock %}

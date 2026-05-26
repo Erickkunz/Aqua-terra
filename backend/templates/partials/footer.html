@@ -1,0 +1,66 @@
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <div class="brand brand-light">
+        <span class="brand-mark"><i class="fa-solid fa-droplet"></i></span>
+        <span class="brand-name">{{ site_name }}</span>
+      </div>
+      <p class="muted">{{ site_tagline }}</p>
+      <div class="socials">
+        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+        <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      </div>
+    </div>
+
+    <div>
+      <h5>Pilares</h5>
+      <ul>
+        {% for p in pillars %}
+        <li><a href="/pillars/{{ p.slug }}">{{ p.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div>
+      <h5>Sitio</h5>
+      <ul>
+        <li><a href="/about">Sobre nosotros</a></li>
+        <li><a href="/shop">Tienda</a></li>
+        <li><a href="/projects">Proyectos</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/dashboard">Dashboard de impacto</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h5>Contacto</h5>
+      <ul>
+        <li><i class="fa-solid fa-envelope"></i> {{ contact_email }}</li>
+        <li><i class="fa-solid fa-phone"></i> {{ contact_phone }}</li>
+        <li><a href="/contact">Solicitar cotizacion</a></li>
+      </ul>
+
+      <form class="newsletter-form" id="newsletterForm">
+        <label for="newsletter-email">Newsletter mensual</label>
+        <div class="input-group">
+          <input id="newsletter-email" type="email" name="email" placeholder="tu@email.com" required />
+          <button type="submit" class="btn btn-primary">Suscribirme</button>
+        </div>
+        <small id="newsletterMsg" class="form-msg"></small>
+      </form>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="container">
+      <small>&copy; {{ current_year }} {{ site_name }}. Todos los derechos reservados.</small>
+      <small><a href="#">Privacidad</a> &middot; <a href="#">Terminos</a></small>
+    </div>
+  </div>
+</footer>
+
+<button class="chat-fab" aria-label="Chat en vivo (placeholder)">
+  <i class="fa-solid fa-comments"></i>
+</button>

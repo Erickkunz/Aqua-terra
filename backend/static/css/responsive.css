@@ -1,0 +1,62 @@
+/* Responsive layers */
+
+@media (max-width: 1280px) {
+  :root { --sidebar-w: 240px; }
+}
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-5 { grid-template-columns: repeat(3, 1fr); }
+  .hero-grid { grid-template-columns: 1fr; }
+  .hero-visual { height: 380px; max-width: 460px; margin: 0 auto; }
+  .shop-layout { grid-template-columns: 220px 1fr; }
+  .footer-grid { grid-template-columns: 1.4fr 1fr; }
+
+  /* Sidebar becomes drawer */
+  body { padding-left: 0 !important; }
+  body.sidebar-collapsed { padding-left: 0 !important; }
+  .sidebar { transform: translateX(-100%); box-shadow: var(--shadow-lg); }
+  body.sidebar-open .sidebar { transform: translateX(0); }
+  body.sidebar-open .sidebar-backdrop { display: block; opacity: 1; }
+  .sidebar-collapse-btn { display: none; }
+  .topbar { display: flex; }
+}
+
+@media (max-width: 768px) {
+  :root { --header-h: 64px; --sidebar-w: 280px; }
+
+  .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
+  .grid-products { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .grid-projects { grid-template-columns: 1fr; }
+
+  .shop-layout { grid-template-columns: 1fr; }
+  .shop-filters { position: static; }
+  .cart-layout { grid-template-columns: 1fr; }
+  .cart-summary { position: static; }
+  .cart-row { grid-template-columns: 60px 1.4fr auto; gap: .5rem; }
+  .cart-row img { width: 60px; height: 42px; }
+  .cart-row-price, .cart-row-qty { grid-column: 2 / span 2; }
+  .cart-remove { grid-column: 3; grid-row: 1; }
+
+  .contact-layout, .dashboard-grid { grid-template-columns: 1fr; }
+  .roi-form .form-row { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .filter-bar select, .filter-bar input { width: 100%; min-width: 0; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .cta-card { flex-direction: column; align-items: flex-start; padding: 2rem; }
+  .section { padding: 3rem 0; }
+  .hero { padding: 3rem 0 2rem; }
+  .testimonial-card { padding: 1.5rem; }
+  .testimonial-card p { font-size: 1rem; }
+  .compare-bar { width: calc(100% - 2rem); flex-direction: column; gap: .5rem; padding: .75rem 1rem; border-radius: var(--radius); }
+}
+
+@media (max-width: 480px) {
+  .grid-products { grid-template-columns: 1fr; }
+  .hero-trust { gap: 1rem; }
+  .hero-trust strong { font-size: 1.25rem; }
+  .hero-card { min-width: 150px; padding: .75rem 1rem; }
+  .hero-card-1 { left: -5px; }
+  .hero-card-2 { right: -5px; }
+  .roi-kpis { grid-template-columns: 1fr; }
+}

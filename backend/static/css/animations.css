@@ -1,0 +1,25 @@
+/* AOS overrides */
+[data-aos] { will-change: transform, opacity; }
+
+/* Counter shimmer */
+.counter { transition: color .3s; }
+
+/* Hover lift utility */
+.lift { transition: transform .25s, box-shadow .25s; }
+.lift:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+
+/* Pulse for chat fab */
+.chat-fab::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  border: 2px solid var(--accent); animation: pulse 2.2s ease-out infinite; pointer-events: none;
+}
+@keyframes pulse {
+  0% { transform: scale(1); opacity: .8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  .hero-circle, .hero-card { animation: none !important; }
+}
