@@ -9,6 +9,8 @@ from .contact import ContactSubmission, QuoteRequest, NewsletterSubscriber
 from .site_content import SiteContent
 # 2. Parent of products
 from .product import Category, Product, ProductReview  # noqa: E402
+# 3. Orders (FK to users)
+from .order import Order  # noqa: E402
 
 __all__ = [
     "User",
@@ -22,4 +24,5 @@ __all__ = [
     "QuoteRequest",
     "NewsletterSubscriber",
     "SiteContent",
+    "Order",
 ]

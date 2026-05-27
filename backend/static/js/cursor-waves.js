@@ -1,200 +1,192 @@
 /* =====================================================================
-   Aqua-Terra cursor + floating spheres (SOLID, fully visible)
-   - Solid colored spheres that follow the cursor (trail of 7 orbs).
-   - 14 ambient spheres drift across the page in the background.
-   - No transparency tricks: opaque fills, bright cores, hard edges.
-   - Disabled on touch and prefers-reduced-motion.
+   Aqua-Terra cursor water waves v15
+   - 5 big auto-waves at center on load (visual showcase)
+   - 3 small translucent rings persistently around the cursor
+     (move WITH the cursor, no trail/wake behind)
+   - JS-driven animation (bypasses Windows "reduce animations" setting)
    ===================================================================== */
 (function () {
-  if (window.__aquaCursor) return; window.__aquaCursor = true;
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const coarse = window.matchMedia('(pointer: coarse)').matches;
-  let canvas = document.getElementById('cursorCanvas');
-  if (!canvas) {
-    canvas = document.createElement('canvas');
-    canvas.id = 'cursorCanvas';
-    canvas.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(canvas);
-  }
-  if (reduce || coarse) { canvas.remove(); return; }
+  if (window.__aquaCursorDOM) return; window.__aquaCursorDOM = true;
 
-  const ctx = canvas.getContext('2d', { alpha: true });
-  let W = 0, H = 0;
-  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  function boot() {
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    if (coarse) {
+      console.warn('[Aqua waves] disabled (touch device)');
+      return;
+    }
 
-  function resize() {
-    W = window.innerWidth; H = window.innerHeight;
-    canvas.width = W * DPR; canvas.height = H * DPR;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  }
-  resize();
-  window.addEventListener('resize', resize);
+    // Clean leftover
+    document.querySelectorAll('#cursorCanvas, #aquaCursorRoot, #aquaCursorStyles, #aquaDebugMarker').forEach(el => el.remove());
 
-  // ===== Color palette (cores blancos -> bordes vivos) =====
-  const COLORS = [
-    { core: '#FFFFFF', mid: '#7FF1EE', edge: '#3DD9D6' }, // cyan
-    { core: '#FFFFFF', mid: '#6BBDFF', edge: '#2E75B6' }, // blue
-    { core: '#FFFFFF', mid: '#B5F088', edge: '#70AD47' }, // green
-    { core: '#FFFFFF', mid: '#FFD580', edge: '#E8A33D' }, // amber
-  ];
+    // Minimal CSS (no animations - everything driven by JS)
+    const css = document.createElement('style');
+    css.id = 'aquaCursorStyles';
+    css.textContent = `
+      #aquaCursorRoot {
+        position: fixed !important;
+        top: 0 !important; left: 0 !important;
+        width: 100vw !important; height: 100vh !important;
+        pointer-events: none !important;
+        z-index: 2147483646 !important;
+        overflow: hidden !important;
+      }
+      /* Big showcase wave (auto + future use) */
+      .aqua-wave {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+        border: 5px solid #3DD9D6;
+        background: radial-gradient(circle, rgba(127, 241, 238, 0.35) 0%, rgba(61, 217, 214, 0.1) 50%, rgba(61, 217, 214, 0) 100%);
+        box-shadow:
+          0 0 26px 5px rgba(61, 217, 214, 0.85),
+          0 0 14px rgba(255, 255, 255, 0.6),
+          inset 0 0 14px rgba(127, 241, 238, 0.5);
+        transform: translate(-50%, -50%);
+        will-change: transform, opacity, width, height;
+      }
+      /* Small persistent cursor rings - translucent, gentle */
+      .aqua-cursor-ring {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+        border: 1.5px solid rgba(127, 241, 238, 0.55);
+        background: transparent;
+        box-shadow: 0 0 6px rgba(61, 217, 214, 0.25);
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        will-change: transform, opacity;
+      }
+    `;
+    document.head.appendChild(css);
 
-  // ===== Cursor state =====
-  let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-  let visible = true;
-  const TRAIL_LEN = 7;
-  const trail = Array.from({ length: TRAIL_LEN }, (_, i) => ({
-    x: mx, y: my,
-    radius: 22 - i * 2.2,
-    color: COLORS[i % COLORS.length],
-    smoothing: 0.18 + i * 0.04,
-  }));
+    const root = document.createElement('div');
+    root.id = 'aquaCursorRoot';
+    root.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(root);
 
-  window.addEventListener('mousemove', (e) => {
-    mx = e.clientX; my = e.clientY;
-    visible = true;
-  }, { passive: true });
-  window.addEventListener('mouseleave', () => { visible = false; });
-  window.addEventListener('mouseenter', () => { visible = true; });
+    // ===== Big wave system (used for auto-spawn at load) =====
+    const waves = [];
+    const WAVE_LIFE = 1300;
 
-  // ===== Click bursts =====
-  const bursts = [];
-  window.addEventListener('click', (e) => {
-    const now = performance.now();
-    for (let i = 0; i < 10; i++) {
-      const angle = (Math.PI * 2 * i) / 10;
-      const speed = 4 + Math.random() * 3;
-      bursts.push({
-        x: e.clientX, y: e.clientY,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        r: 8 + Math.random() * 6,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        born: now,
-        life: 800 + Math.random() * 400,
+    function spawnWave(x, y, sizeTo) {
+      const sizeFrom = 18;
+      const el = document.createElement('div');
+      el.className = 'aqua-wave';
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.width = sizeFrom + 'px';
+      el.style.height = sizeFrom + 'px';
+      el.style.opacity = '0';
+      el.style.borderWidth = '5px';
+      root.appendChild(el);
+      waves.push({ el, born: performance.now(), life: WAVE_LIFE, sizeFrom, sizeTo });
+    }
+
+    // ===== Small cursor rings (persistent, follow cursor) =====
+    // 3 concentric rings of different base sizes, each pulses gently,
+    // each follows the cursor with slight smoothing for an organic feel.
+    const RING_COUNT = 3;
+    const rings = [];
+    for (let i = 0; i < RING_COUNT; i++) {
+      const el = document.createElement('div');
+      el.className = 'aqua-cursor-ring';
+      root.appendChild(el);
+      rings.push({
+        el,
+        baseSize: 24 + i * 18,    // 24, 42, 60
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+        smooth: 0.35 - i * 0.08,   // outer rings lag slightly more
+        phase: i * Math.PI * 0.6,  // out-of-phase pulses
       });
     }
-  });
 
-  // ===== Ambient floating spheres =====
-  function spawnAmbient() {
-    const radius = 14 + Math.random() * 28;
-    return {
-      x: Math.random() * W,
-      y: Math.random() * H,
-      vx: (Math.random() - 0.5) * 0.7,
-      vy: (Math.random() - 0.5) * 0.7,
-      r: radius,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      pulse: Math.random() * Math.PI * 2,
-      pulseSpeed: 0.01 + Math.random() * 0.02,
-    };
-  }
-  const AMBIENT_COUNT = 14;
-  const ambient = Array.from({ length: AMBIENT_COUNT }, spawnAmbient);
+    // Cursor tracking
+    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    let lastMoveTime = 0;
+    let cursorActive = false;
 
-  // ===== Drawing helpers =====
-  function hexA(hex, a) {
-    const h = hex.replace('#', '');
-    const r = parseInt(h.substring(0, 2), 16);
-    const g = parseInt(h.substring(2, 4), 16);
-    const b = parseInt(h.substring(4, 6), 16);
-    return `rgba(${r},${g},${b},${a})`;
-  }
+    window.addEventListener('mousemove', (e) => {
+      mx = e.clientX; my = e.clientY;
+      lastMoveTime = performance.now();
+      cursorActive = true;
+    }, { passive: true });
 
-  function drawSphere(x, y, r, color, alpha = 1) {
-    // Outer halo
-    const haloR = r * 2.3;
-    const halo = ctx.createRadialGradient(x, y, r * 0.5, x, y, haloR);
-    halo.addColorStop(0, hexA(color.edge, 0.45 * alpha));
-    halo.addColorStop(1, hexA(color.edge, 0));
-    ctx.fillStyle = halo;
-    ctx.beginPath();
-    ctx.arc(x, y, haloR, 0, Math.PI * 2);
-    ctx.fill();
+    window.addEventListener('mouseleave', () => { cursorActive = false; });
+    window.addEventListener('mouseenter', () => { cursorActive = true; });
 
-    // Main solid sphere body (opaque radial gradient)
-    const sphere = ctx.createRadialGradient(
-      x - r * 0.35, y - r * 0.35, r * 0.1,
-      x, y, r
-    );
-    sphere.addColorStop(0, hexA(color.core, alpha));
-    sphere.addColorStop(0.45, hexA(color.mid, alpha));
-    sphere.addColorStop(1, hexA(color.edge, alpha));
-    ctx.fillStyle = sphere;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
+    function lerp(a, b, t) { return a + (b - a) * t; }
 
-    // Hard rim (gives "solid" perception)
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = hexA(color.edge, 0.9 * alpha);
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Specular highlight (white dot top-left)
-    const spec = ctx.createRadialGradient(
-      x - r * 0.4, y - r * 0.45, 0,
-      x - r * 0.4, y - r * 0.45, r * 0.6
-    );
-    spec.addColorStop(0, hexA('#FFFFFF', 0.9 * alpha));
-    spec.addColorStop(1, hexA('#FFFFFF', 0));
-    ctx.fillStyle = spec;
-    ctx.beginPath();
-    ctx.arc(x - r * 0.4, y - r * 0.45, r * 0.6, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  function lerp(a, b, t) { return a + (b - a) * t; }
-
-  // ===== Animation loop =====
-  function tick(now) {
-    ctx.clearRect(0, 0, W, H);
-
-    // Ambient floating spheres
-    for (const a of ambient) {
-      a.x += a.vx;
-      a.y += a.vy;
-      a.pulse += a.pulseSpeed;
-      if (a.x < -60) a.x = W + 60;
-      if (a.x > W + 60) a.x = -60;
-      if (a.y < -60) a.y = H + 60;
-      if (a.y > H + 60) a.y = -60;
-      const pulse = 1 + Math.sin(a.pulse) * 0.15;
-      drawSphere(a.x, a.y, a.r * pulse, a.color, 0.9);
-    }
-
-    // Click bursts
-    for (let i = bursts.length - 1; i >= 0; i--) {
-      const b = bursts[i];
-      const age = now - b.born;
-      const t = age / b.life;
-      if (t >= 1) { bursts.splice(i, 1); continue; }
-      b.x += b.vx;
-      b.y += b.vy;
-      b.vx *= 0.96;
-      b.vy *= 0.96;
-      const r = b.r * (1 - t * 0.4);
-      drawSphere(b.x, b.y, r, b.color, 1 - t);
-    }
-
-    if (visible) {
-      // Cursor trail (solid spheres of decreasing size following the mouse)
-      let prevX = mx, prevY = my;
-      for (let i = 0; i < trail.length; i++) {
-        const t = trail[i];
-        t.x = lerp(t.x, prevX, t.smoothing);
-        t.y = lerp(t.y, prevY, t.smoothing);
-        prevX = t.x;
-        prevY = t.y;
-        const alpha = 1 - (i / trail.length) * 0.55;
-        drawSphere(t.x, t.y, t.radius, t.color, alpha);
+    function tick(now) {
+      // ---- Big waves (auto-spawn animation) ----
+      for (let i = waves.length - 1; i >= 0; i--) {
+        const w = waves[i];
+        const age = now - w.born;
+        const t = age / w.life;
+        if (t >= 1) {
+          w.el.remove();
+          waves.splice(i, 1);
+          continue;
+        }
+        const easeT = 1 - Math.pow(1 - t, 3);
+        const size = w.sizeFrom + (w.sizeTo - w.sizeFrom) * easeT;
+        const opacity = t < 0.15 ? (t / 0.15) : (1 - (t - 0.15) / 0.85);
+        const borderW = 5 - 3.5 * easeT;
+        w.el.style.width = size + 'px';
+        w.el.style.height = size + 'px';
+        w.el.style.opacity = opacity.toFixed(3);
+        w.el.style.borderWidth = borderW.toFixed(2) + 'px';
       }
-    }
 
+      // ---- Cursor rings (small, translucent, follow cursor) ----
+      // Fade them out if cursor has been still for >600ms (no trail when idle)
+      const idleTime = now - lastMoveTime;
+      const targetVisibility = (cursorActive && idleTime < 800) ? 1 : 0;
+
+      for (let i = 0; i < rings.length; i++) {
+        const r = rings[i];
+        // Smooth follow (all rings target same cursor point - no trail)
+        r.x = lerp(r.x, mx, r.smooth);
+        r.y = lerp(r.y, my, r.smooth);
+        // Gentle breathing pulse
+        const pulse = 1 + Math.sin(now * 0.005 + r.phase) * 0.12;
+        const size = r.baseSize * pulse;
+        // Current opacity smoothly approaches target
+        const currentOp = parseFloat(r.el.style.opacity) || 0;
+        const baseOp = 0.55 - i * 0.1; // outer rings more translucent
+        const targetOp = baseOp * targetVisibility;
+        const newOp = lerp(currentOp, targetOp, 0.12);
+        r.el.style.left = r.x + 'px';
+        r.el.style.top = r.y + 'px';
+        r.el.style.width = size + 'px';
+        r.el.style.height = size + 'px';
+        r.el.style.opacity = newOp.toFixed(3);
+      }
+
+      requestAnimationFrame(tick);
+    }
     requestAnimationFrame(tick);
+
+    // Keep root last child of body (defensive)
+    setInterval(() => {
+      if (document.body.lastElementChild !== root) {
+        document.body.appendChild(root);
+      }
+    }, 2000);
+
+    // ===== Auto-spawn 5 big waves at center on load =====
+    let testN = 0;
+    const testTimer = setInterval(() => {
+      const cx = window.innerWidth / 2 + (Math.random() - 0.5) * 200;
+      const cy = window.innerHeight / 2 + (Math.random() - 0.5) * 200;
+      spawnWave(cx, cy, 200);
+      testN++;
+      if (testN >= 5) clearInterval(testTimer);
+    }, 400);
+
+    console.log('[Aqua waves v15] 3 small cursor rings + 5 auto big waves on load');
   }
-  requestAnimationFrame(tick);
+
+  if (document.body) boot();
+  else document.addEventListener('DOMContentLoaded', boot, { once: true });
 })();

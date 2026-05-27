@@ -11,7 +11,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from config import settings
 from database import Base, engine, SessionLocal
-from routes import home, about, pillars, shop, projects, blog, contact, dashboard, auth, admin
+from routes import home, about, pillars, shop, projects, blog, contact, dashboard, auth, admin, webpay
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("aquaterra")
@@ -104,3 +104,4 @@ app.include_router(contact.router)
 app.include_router(dashboard.router)
 app.include_router(auth.router)
 app.include_router(admin.router)
+app.include_router(webpay.router)

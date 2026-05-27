@@ -25,6 +25,12 @@ class Settings(BaseSettings):
     SESSION_HTTPS_ONLY: bool = False
     WEB_WORKERS: int = 2
 
+    # ---- Transbank WebPay Plus ----
+    # "integration" (default, sandbox) or "production"
+    TRANSBANK_ENV: str = "integration"
+    TRANSBANK_COMMERCE_CODE: str = ""  # required only when TRANSBANK_ENV=production
+    TRANSBANK_API_KEY: str = ""        # required only when TRANSBANK_ENV=production
+
     @property
     def is_production(self) -> bool:
         return self.ENVIRONMENT.lower() == "production"

@@ -37,9 +37,12 @@
       <div class="summary-row muted"><span>Envio</span><span>A coordinar</span></div>
       <hr />
       <div class="summary-row big"><span>Total estimado</span><strong>USD {{ "{:,.2f}".format(subtotal) }}</strong></div>
-      <button class="btn btn-primary btn-block btn-lg" id="openQuoteModal">Solicitar cotizacion</button>
+      <a href="/checkout" class="btn btn-primary btn-block btn-lg btn-glow" style="margin-bottom:.5rem">
+        <i class="fa-solid fa-credit-card"></i> Pagar con WebPay
+      </a>
+      <button class="btn btn-ghost btn-block" id="openQuoteModal">Solicitar cotizacion</button>
       <a href="/shop" class="btn btn-ghost btn-block">Seguir comprando</a>
-      <small class="muted">Esta tienda no procesa pagos en linea. Te enviamos una cotizacion formal por email.</small>
+      <small class="muted">Pago seguro procesado por Transbank, o solicita cotizacion formal por email.</small>
     </aside>
   </div>
 

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Checkout - {{ site_name }}{% endblock %}
+{% block content %}
+<section class="container section">
+  <h1>Finalizar compra</h1>
+  <p class="muted">Completa tus datos y paga con WebPay (Transbank).</p>
+
+  <div class="checkout-grid">
+    <form method="post" action="/checkout/webpay/create" class="checkout-form">
+      <h3>Datos del comprador</h3>
+      <div class="form-row">
+        <label>Nombre completo *
+          <input type="text" name="buyer_name" required value="{{ current_username or '' }}" />
+        </label>
+        <label>Email *
+          <input type="email" name="buyer_email" required />
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Telefono
+          <input type="tel" name="buyer_phone" />
+        </label>
+        <label>Direccion
+          <input type="text" name="buyer_address" />
+        </label>
+      </div>
+
+      <h3 style="margin-top:1.5rem">Resumen</h3>
+      <ul class="checkout-items">
+        {% for it in items %}
+        <li>
+          <strong>{{ it.product.name }}</strong>
+          <span>x {{ it.qty }}</span>
+          <span>CLP {{ "{:,.0f}".format(it.line_total) }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="checkout-total">
+        <span>Total a pagar</span>
+        <strong>CLP {{ "{:,.0f}".format(subtotal) }}</strong>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg btn-block btn-glow">
+        <i class="fa-solid fa-credit-card"></i> Pagar con WebPay
+      </button>
+      <p class="muted small" style="margin-top:.7rem">
+        Pago seguro procesado por Transbank. Aceptamos tarjetas de credito, debito y prepago.
+      </p>
+    </form>
+
+    <aside class="checkout-aside">
+      <div class="checkout-card">
+        <i class="fa-solid fa-shield-halved" style="font-size:2rem;color:var(--primary)"></i>
+        <h4>Pago seguro</h4>
+        <p class="muted small">Tus datos viajan cifrados directamente a Transbank. Aqua-Terra nunca almacena los datos de tu tarjeta.</p>
+      </div>
+      <div class="checkout-card">
+        <i class="fa-solid fa-truck-fast" style="font-size:2rem;color:var(--accent)"></i>
+        <h4>Despacho rapido</h4>
+        <p class="muted small">Te contactamos en menos de 24 horas para coordinar el envio.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .checkout-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-top: 2rem; }
+  @media (max-width: 800px) { .checkout-grid { grid-template-columns: 1fr; } }
+  .checkout-form { background: #fff; padding: 1.6rem; border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,.06); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .form-row label { display: flex; flex-direction: column; gap: .35rem; font-weight: 600; font-size: .9rem; }
+  .form-row input { padding: .55rem .7rem; border: 1px solid #d6e2ef; border-radius: 8px; font: inherit; }
+  .checkout-items { list-style: none; padding: 0; margin: .6rem 0; }
+  .checkout-items li { display: grid; grid-template-columns: 1fr auto auto; gap: 1rem; padding: .5rem 0; border-bottom: 1px solid #eef3f8; }
+  .checkout-total { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; font-size: 1.2rem; border-top: 2px solid #e3edf6; margin-top: .6rem; }
+  .checkout-card { background: #fff; padding: 1.2rem; border-radius: 12px; margin-bottom: 1rem; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,.05); }
+</style>
+{% endblock %}

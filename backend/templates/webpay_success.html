@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Pago exitoso - {{ site_name }}{% endblock %}
+{% block content %}
+<section class="container section center" style="max-width:680px;margin:0 auto">
+  <div style="font-size:5rem;color:#22c55e"><i class="fa-solid fa-circle-check"></i></div>
+  <h1>Pago confirmado</h1>
+  <p class="muted">Gracias {{ order.buyer_name or '' }}. Tu pago fue procesado correctamente por WebPay.</p>
+
+  <div class="receipt">
+    <div class="receipt-row"><span>Orden</span><strong>{{ order.buy_order }}</strong></div>
+    <div class="receipt-row"><span>Autorizacion</span><strong>{{ order.webpay_authorization_code }}</strong></div>
+    {% if order.webpay_card_last4 %}
+    <div class="receipt-row"><span>Tarjeta</span><strong>**** {{ order.webpay_card_last4 }}</strong></div>
+    {% endif %}
+    <div class="receipt-row big"><span>Total pagado</span><strong>{{ order.currency }} {{ "{:,.0f}".format(order.total) }}</strong></div>
+  </div>
+
+  <h3 style="margin-top:1.5rem">Detalle de tu compra</h3>
+  <ul class="receipt-items">
+    {% for it in order.items_snapshot %}
+    <li>{{ it.name }} <span>x {{ it.qty }}</span> <strong>CLP {{ "{:,.0f}".format(it.line_total) }}</strong></li>
+    {% endfor %}
+  </ul>
+
+  <p class="muted small" style="margin-top:1rem">Te enviamos un correo con la confirmacion. Nos pondremos en contacto en menos de 24 horas para coordinar el envio.</p>
+  <a href="/shop" class="btn btn-primary btn-lg" style="margin-top:1rem">Seguir comprando</a>
+</section>
+
+<style>
+  .receipt { background: #fff; border: 1px solid #e3edf6; border-radius: 12px; padding: 1.4rem; margin: 1.5rem auto; max-width: 520px; }
+  .receipt-row { display: flex; justify-content: space-between; padding: .55rem 0; border-bottom: 1px dashed #e3edf6; }
+  .receipt-row.big { border-bottom: 0; border-top: 2px solid #2E75B6; margin-top: .5rem; padding-top: .8rem; font-size: 1.15rem; }
+  .receipt-items { list-style: none; padding: 0; max-width: 520px; margin: 0 auto; text-align: left; }
+  .receipt-items li { display: grid; grid-template-columns: 1fr auto auto; gap: 1rem; padding: .4rem 0; border-bottom: 1px solid #eef3f8; }
+</style>
+{% endblock %}
