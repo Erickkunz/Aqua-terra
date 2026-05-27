@@ -22,11 +22,14 @@
     const css = document.createElement('style');
     css.id = 'aquaCursorStyles';
     css.textContent = `
+      #aquaCursorRoot,
+      #aquaCursorRoot * {
+        pointer-events: none !important;
+      }
       #aquaCursorRoot {
         position: fixed !important;
         top: 0 !important; left: 0 !important;
         width: 100vw !important; height: 100vh !important;
-        pointer-events: none !important;
         z-index: 2147483646 !important;
         overflow: hidden !important;
       }
@@ -167,12 +170,13 @@
     }
     requestAnimationFrame(tick);
 
-    // Keep root last child of body (defensive)
-    setInterval(() => {
-      if (document.body.lastElementChild !== root) {
-        document.body.appendChild(root);
-      }
-    }, 2000);
+    // Disable on admin pages to keep the UI 100% predictable
+    if (location.pathname.startsWith('/admin')) {
+      root.remove();
+      css.remove();
+      console.log('[Aqua waves] hidden on admin pages');
+      return;
+    }
 
     // ===== Auto-spawn 5 big waves at center on load =====
     let testN = 0;

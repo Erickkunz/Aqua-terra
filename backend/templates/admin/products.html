@@ -7,11 +7,22 @@
 
 {% block admin_content %}
 <div class="admin-card">
+  <p class="admin-help" style="margin-bottom:1rem">
+    <i class="fa-solid fa-circle-info"></i>
+    La <strong>estrella amarilla</strong> indica producto <strong>destacado</strong> (aparece en home/featured).
+    El stock muestra la cantidad disponible — al llegar a 0 el producto se marca automaticamente como agotado.
+  </p>
   <div class="admin-table-wrap">
     <table class="admin-table">
       <thead>
         <tr>
-          <th>ID</th><th>Nombre</th><th>Categoria</th><th>Precio</th><th>Stock</th><th>Featured</th><th></th>
+          <th style="width:60px">ID</th>
+          <th>Nombre</th>
+          <th>Categoria</th>
+          <th style="width:110px;text-align:right">Precio</th>
+          <th style="width:110px;text-align:center">Stock</th>
+          <th style="width:80px;text-align:center" title="Marcado como destacado">Destacado</th>
+          <th style="width:110px;text-align:right">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -20,14 +31,32 @@
           <td>{{ p.id }}</td>
           <td><strong>{{ p.name }}</strong><br><small class="muted">{{ p.slug }}</small></td>
           <td>{{ p.category.name if p.category else '-' }}</td>
-          <td>${{ '%.2f' % p.price }}</td>
-          <td>{% if p.in_stock %}<span class="chip chip-success">Si</span>{% else %}<span class="chip" style="background:#dc2626">No</span>{% endif %}</td>
-          <td>{% if p.is_featured %}<i class="fa-solid fa-star" style="color:#F59E0B"></i>{% endif %}</td>
-          <td class="row-actions">
-            <a href="/admin/products/{{ p.id }}/edit" class="btn btn-sm btn-outline"><i class="fa-solid fa-pen"></i></a>
-            <form method="post" action="/admin/products/{{ p.id }}/delete" onsubmit="return confirm('Eliminar producto {{ p.name }}?')" style="display:inline">
-              <button class="btn btn-sm" style="background:#dc2626;color:#fff;border-color:#dc2626"><i class="fa-solid fa-trash"></i></button>
-            </form>
+          <td style="text-align:right">${{ '%.2f' % p.price }}</td>
+          <td style="text-align:center">
+            {% if p.in_stock and p.stock_qty > 0 %}
+              <span class="chip chip-success">{{ p.stock_qty }} disp.</span>
+            {% else %}
+              <span class="chip chip-danger">Agotado</span>
+            {% endif %}
+          </td>
+          <td style="text-align:center">
+            {% if p.is_featured %}
+              <i class="fa-solid fa-star" style="color:#F59E0B" title="Producto destacado"></i>
+            {% else %}
+              <span class="muted">-</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="row-actions">
+              <a href="/admin/products/{{ p.id }}/edit" class="btn btn-sm btn-outline" title="Editar">
+                <i class="fa-solid fa-pen"></i>
+              </a>
+              <form method="post" action="/admin/products/{{ p.id }}/delete" onsubmit="return confirm('Eliminar producto {{ p.name }}?')">
+                <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </form>
+            </div>
           </td>
         </tr>
         {% endfor %}
@@ -44,7 +73,7 @@
       <strong>{{ c.name }}</strong>
       <small class="muted">{{ c.slug }} - {{ c.products|length }} prods</small>
       <form method="post" action="/admin/categories/{{ c.id }}/delete" onsubmit="return confirm('Eliminar categoria {{ c.name }} (incluye {{ c.products|length }} productos)?')">
-        <button class="btn btn-sm btn-ghost"><i class="fa-solid fa-trash"></i></button>
+        <button type="submit" class="btn btn-sm btn-ghost"><i class="fa-solid fa-trash"></i></button>
       </form>
     </div>
     {% endfor %}
@@ -58,7 +87,7 @@
         <label>Icono (fontawesome) <input type="text" name="icon" value="droplet"></label>
       </div>
       <label>Descripcion <input type="text" name="description"></label>
-      <button class="btn btn-primary">Crear categoria</button>
+      <button type="submit" class="btn btn-primary">Crear categoria</button>
     </form>
   </details>
 </div>

@@ -661,7 +661,7 @@ body.sidebar-collapsed .sidebar-user[data-tip]:hover::after {
 
 /* ---- Compact icon buttons for admin tables ---- */
 .row-actions {
-  display: flex !important;
+  display: inline-flex !important;
   gap: .4rem !important;
   justify-content: flex-end !important;
   align-items: center !important;
@@ -685,10 +685,12 @@ body.sidebar-collapsed .sidebar-user[data-tip]:hover::after {
   line-height: 1 !important;
   border-radius: 8px !important;
   border-width: 1px !important;
+  border-style: solid !important;
   transform: none !important;
   cursor: pointer !important;
   position: relative !important;
   z-index: 5 !important;
+  pointer-events: auto !important;
 }
 .row-actions .btn-sm:hover {
   transform: translateY(-1px) !important;
@@ -696,6 +698,25 @@ body.sidebar-collapsed .sidebar-user[data-tip]:hover::after {
 }
 .row-actions .btn-sm i { line-height: 1; }
 .admin-table td { vertical-align: middle !important; }
+
+/* danger button */
+.btn-danger {
+  background: #dc2626 !important;
+  color: #fff !important;
+  border-color: #dc2626 !important;
+}
+.btn-danger:hover { background: #b91c1c !important; border-color: #b91c1c !important; }
+
+/* danger chip */
+.chip-danger {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+/* Force admin pages above the cursor canvas just in case */
+.admin-page, .admin-main, .admin-card, .admin-table, .admin-table * {
+  position: relative;
+}
 
 .cats-grid {
   display: grid;

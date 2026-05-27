@@ -127,10 +127,13 @@ def product_save(
     item.image_url = image_url
     item.short_description = short_description
     item.description = description
-    item.in_stock = (in_stock == "on")
     item.is_featured = (is_featured == "on")
     item.rating = rating
-    item.stock_qty = stock_qty
+    item.stock_qty = max(0, int(stock_qty))
+    # Keep in_stock and stock_qty in sync: if qty is 0, mark as out-of-stock
+    # regardless of the checkbox. If checkbox is on and qty>0, in_stock=True.
+    in_stock_chk = (in_stock == "on")
+    item.in_stock = bool(in_stock_chk and item.stock_qty > 0)
     item.specifications = _parse_json_field(specifications_json, {})
     item.features = _parse_json_field(features_json, [])
 

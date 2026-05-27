@@ -3,9 +3,25 @@
 {% block admin_heading %}Usuarios ({{ items|length }}){% endblock %}
 {% block admin_content %}
 <div class="admin-card">
+  <p class="admin-help" style="margin-bottom:1rem">
+    <i class="fa-solid fa-circle-info"></i>
+    Boton <i class="fa-solid fa-user-shield"></i> = cambiar rol admin/user &middot;
+    <i class="fa-solid fa-power-off"></i> = activar/desactivar cuenta &middot;
+    <i class="fa-solid fa-trash"></i> = eliminar permanentemente.
+  </p>
   <div class="admin-table-wrap">
     <table class="admin-table">
-      <thead><tr><th>ID</th><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Registro</th><th></th></tr></thead>
+      <thead>
+        <tr>
+          <th style="width:60px">ID</th>
+          <th>Usuario</th>
+          <th>Email</th>
+          <th style="width:90px;text-align:center">Rol</th>
+          <th style="width:100px;text-align:center">Estado</th>
+          <th style="width:110px">Registro</th>
+          <th style="width:160px;text-align:right">Acciones</th>
+        </tr>
+      </thead>
       <tbody>
         {% for u in items %}
         <tr>
@@ -15,35 +31,37 @@
             {% if u.full_name %}<br><small class="muted">{{ u.full_name }}</small>{% endif %}
           </td>
           <td>{{ u.email }}</td>
-          <td>
+          <td style="text-align:center">
             {% if u.is_admin %}
               <span class="chip" style="background:#7c3aed">ADMIN</span>
             {% else %}
               <span class="chip chip-soft">user</span>
             {% endif %}
           </td>
-          <td>
+          <td style="text-align:center">
             {% if u.is_active %}
               <span class="chip chip-success">activo</span>
             {% else %}
-              <span class="chip" style="background:#6b7280">inactivo</span>
+              <span class="chip" style="background:#6b7280;color:#fff">inactivo</span>
             {% endif %}
           </td>
           <td>{{ u.created_at.strftime('%Y-%m-%d') }}</td>
-          <td class="row-actions">
-            {% if u.id != current_user_id %}
-            <form method="post" action="/admin/users/{{ u.id }}/toggle-admin" style="display:inline">
-              <button class="btn btn-sm btn-outline" title="Toggle admin"><i class="fa-solid fa-user-shield"></i></button>
-            </form>
-            <form method="post" action="/admin/users/{{ u.id }}/toggle-active" style="display:inline">
-              <button class="btn btn-sm btn-outline" title="Toggle activo"><i class="fa-solid fa-power-off"></i></button>
-            </form>
-            <form method="post" action="/admin/users/{{ u.id }}/delete" onsubmit="return confirm('Eliminar usuario {{ u.username }}?')" style="display:inline">
-              <button class="btn btn-sm" style="background:#dc2626;color:#fff;border-color:#dc2626"><i class="fa-solid fa-trash"></i></button>
-            </form>
-            {% else %}
-            <span class="muted small">(tu cuenta)</span>
-            {% endif %}
+          <td>
+            <div class="row-actions">
+              {% if u.id != current_user_id %}
+                <form method="post" action="/admin/users/{{ u.id }}/toggle-admin">
+                  <button type="submit" class="btn btn-sm btn-outline" title="Cambiar rol admin"><i class="fa-solid fa-user-shield"></i></button>
+                </form>
+                <form method="post" action="/admin/users/{{ u.id }}/toggle-active">
+                  <button type="submit" class="btn btn-sm btn-outline" title="Activar/desactivar"><i class="fa-solid fa-power-off"></i></button>
+                </form>
+                <form method="post" action="/admin/users/{{ u.id }}/delete" onsubmit="return confirm('Eliminar usuario {{ u.username }} de forma permanente?')">
+                  <button type="submit" class="btn btn-sm btn-danger" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                </form>
+              {% else %}
+                <span class="muted small">(tu cuenta)</span>
+              {% endif %}
+            </div>
           </td>
         </tr>
         {% endfor %}

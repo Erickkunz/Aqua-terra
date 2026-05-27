@@ -15,7 +15,7 @@
     </div>
     <label>Texto <textarea name="text" rows="3" required></textarea></label>
     <label class="check-inline"><input type="checkbox" name="is_featured"> Destacado</label>
-    <button class="btn btn-primary btn-glow"><i class="fa-solid fa-plus"></i> Agregar</button>
+    <button type="submit" class="btn btn-primary btn-glow"><i class="fa-solid fa-plus"></i> Agregar</button>
   </form>
 </div>
 
@@ -26,12 +26,14 @@
       <strong>{{ t.client_name }}</strong>
       {% if t.client_role %}<small class="muted"> - {{ t.client_role }}</small>{% endif %}
       {% if t.company %}<span class="chip chip-soft">{{ t.company }}</span>{% endif %}
-      {% if t.is_featured %}<i class="fa-solid fa-star" style="color:#F59E0B"></i>{% endif %}
+      {% if t.is_featured %}<i class="fa-solid fa-star" style="color:#F59E0B" title="Destacado"></i>{% endif %}
       <p class="muted">"{{ t.text }}"</p>
     </div>
-    <form method="post" action="/admin/testimonials/{{ t.id }}/delete" onsubmit="return confirm('Eliminar?')">
-      <button class="btn btn-sm" style="background:#dc2626;color:#fff;border-color:#dc2626"><i class="fa-solid fa-trash"></i></button>
-    </form>
+    <div class="row-actions">
+      <form method="post" action="/admin/testimonials/{{ t.id }}/delete" onsubmit="return confirm('Eliminar testimonio de {{ t.client_name }}?')">
+        <button type="submit" class="btn btn-sm btn-danger" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+      </form>
+    </div>
   </div>
   {% endfor %}
 </div>

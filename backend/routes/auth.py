@@ -62,6 +62,9 @@ def login_submit(
     user.last_login = datetime.utcnow()
     db.commit()
 
+    # Reset session entirely on login (prevents session fixation + ensures
+    # cart/wishlist from a previous account don't carry over).
+    request.session.clear()
     request.session["user_id"] = user.id
     request.session["username"] = user.username
     request.session["is_admin"] = bool(user.is_admin)
@@ -125,6 +128,8 @@ def register_submit(
     db.commit()
     db.refresh(user)
 
+    # Reset session entirely on register: new account starts clean.
+    request.session.clear()
     request.session["user_id"] = user.id
     request.session["username"] = user.username
     request.session["is_admin"] = False
@@ -136,7 +141,8 @@ def register_submit(
 @router.post("/logout")
 @router.get("/logout")
 def logout(request: Request):
-    request.session.pop("user_id", None)
-    request.session.pop("username", None)
-    request.session.pop("is_admin", None)
+    # Wipe the session entirely on logout. This guarantees that cart, wishlist
+    # and any other transient state DO NOT leak to whoever logs in next on
+    # the same browser. Each account starts with a clean session.
+    request.session.clear()
     return RedirectResponse(url="/", status_code=303)
