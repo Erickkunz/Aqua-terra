@@ -6,6 +6,7 @@ from .testimonial import Testimonial
 from .blog import BlogPost
 from .project import Project
 from .contact import ContactSubmission, QuoteRequest, NewsletterSubscriber
+from .site_content import SiteContent
 # 2. Parent of products
 from .product import Category, Product, ProductReview  # noqa: E402
 
@@ -20,4 +21,5 @@ __all__ = [
     "ContactSubmission",
     "QuoteRequest",
     "NewsletterSubscriber",
+    "SiteContent",
 ]

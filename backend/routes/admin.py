@@ -11,10 +11,11 @@ from database import get_db
 from models import (
     Category, Product, Project, Testimonial, BlogPost,
     ContactSubmission, QuoteRequest, NewsletterSubscriber, User,
+    SiteContent,
 )
 from security import require_admin, hash_password
 from utils import slugify
-from ._common import templates, base_ctx
+from ._common import templates, base_ctx, SITE_CONTENT_DEFAULTS
 
 logger = logging.getLogger("aquaterra.admin")
 
@@ -467,10 +468,47 @@ def user_reset_password(
 @router.get("/content")
 def admin_content(request: Request, db: Session = Depends(get_db)):
     require_admin(request, db)
+    rows = db.query(SiteContent).all()
+    existing = {r.key: r.value for r in rows}
+    # build groups for the template (section -> list of {key, label, value})
+    groups: dict[str, list[dict]] = {}
+    for key, (default_val, label, section) in SITE_CONTENT_DEFAULTS.items():
+        groups.setdefault(section, []).append({
+            "key": key,
+            "label": label,
+            "value": existing.get(key, default_val),
+        })
     return templates.TemplateResponse(
         "admin/content.html",
-        base_ctx(request),
+        base_ctx(request, groups=groups),
     )
+
+
+@router.post("/content/save")
+async def admin_content_save(request: Request, db: Session = Depends(get_db)):
+    """Save editable fields. Form fields are named ``field_<key>``."""
+    require_admin(request, db)
+    form = await request.form()
+    updated = 0
+    for raw_key, raw_val in form.items():
+        if not raw_key.startswith("field_"):
+            continue
+        key = raw_key[len("field_"):]
+        value = (raw_val or "").strip()
+        meta = SITE_CONTENT_DEFAULTS.get(key)
+        label = meta[1] if meta else key
+        section = meta[2] if meta else "general"
+        row = db.query(SiteContent).filter(SiteContent.key == key).first()
+        if row:
+            row.value = value
+            row.label = label
+            row.section = section
+        else:
+            db.add(SiteContent(key=key, value=value, label=label, section=section))
+        updated += 1
+    db.commit()
+    logger.info("[ADMIN] site content updated (%d fields)", updated)
+    return RedirectResponse(url="/admin/content", status_code=303)
 
 
 # ===== CONTACT SUBMISSIONS =====

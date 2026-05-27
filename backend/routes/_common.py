@@ -8,6 +8,45 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
+# ============================================================
+# Editable site content (admin-managed in /admin/content)
+# ============================================================
+SITE_CONTENT_DEFAULTS = {
+    # Hero / home
+    "home.hero.title":     ("Soluciones hidricas integrales para LATAM",      "Titulo principal del hero",        "home"),
+    "home.hero.subtitle":  ("Tecnologia, consultoria, materiales y proyectos internacionales para una gestion eficiente del agua.", "Subtitulo del hero", "home"),
+    "home.hero.cta":       ("Solicita una consultoria",                       "Texto del boton principal",        "home"),
+    "home.hero.cta2":      ("Ver proyectos",                                  "Texto del boton secundario",       "home"),
+    # About
+    "about.mission":       ("Llevar gestion hidrica sostenible a cada productor y comunidad de Latinoamerica.", "Mision corporativa", "about"),
+    "about.vision":        ("Ser el aliado tecnico-comercial de referencia en gestion hidrica de la region.", "Vision corporativa", "about"),
+    "about.story":         ("Nacimos en 2014 fusionando equipos de ingenieria, agronomia y consultoria internacional.", "Historia breve", "about"),
+    # Contact
+    "contact.address":     ("Av. Principal 123, Lima - Peru",                 "Direccion fisica",                 "contact"),
+    "contact.hours":       ("Lun-Vie 9:00 - 18:00",                           "Horario de atencion",              "contact"),
+    # Footer
+    "footer.tagline":      ("Gestion hidrica inteligente para LATAM.",        "Tagline del footer",               "footer"),
+    "footer.copyright":    ("(c) 2026 Aqua-Terra. Todos los derechos reservados.", "Texto de copyright",          "footer"),
+}
+
+
+def load_site_content(db):
+    """Return dict {key: value} from SiteContent table, falling back to defaults."""
+    try:
+        from models import SiteContent
+        rows = db.query(SiteContent).all()
+        existing = {r.key: r.value for r in rows}
+    except Exception:
+        existing = {}
+    result = {}
+    for k, (default_val, _label, _section) in SITE_CONTENT_DEFAULTS.items():
+        result[k] = existing.get(k, default_val)
+    # also expose any custom keys an admin added
+    for k, v in existing.items():
+        result.setdefault(k, v)
+    return result
+
+
 PILLARS = [
     {
         "slug": "tecnologia",
@@ -99,6 +138,15 @@ def get_pillar(slug: str):
 def base_ctx(request: Request, **extra):
     cart = request.session.get("cart", {})
     wishlist = request.session.get("wishlist", [])
+    # Lazy import db helper to avoid circular import at module load
+    site_content = {}
+    try:
+        from database import SessionLocal
+        with SessionLocal() as db:
+            site_content = load_site_content(db)
+    except Exception:
+        # fall back to defaults only
+        site_content = {k: v[0] for k, v in SITE_CONTENT_DEFAULTS.items()}
     ctx = {
         "request": request,
         "site_name": settings.SITE_NAME,
@@ -114,6 +162,8 @@ def base_ctx(request: Request, **extra):
         "current_username": request.session.get("username"),
         "is_admin": bool(request.session.get("is_admin")),
         "is_authenticated": bool(request.session.get("user_id")),
+        # Editable site content (admin-managed, exposed to all templates)
+        "sc": site_content,
     }
     ctx.update(extra)
     return ctx

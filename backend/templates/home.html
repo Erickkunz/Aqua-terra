@@ -6,14 +6,11 @@
   <div class="container hero-grid">
     <div class="hero-copy" data-aos="fade-up">
       <span class="eyebrow">{{ site_tagline }}</span>
-      <h1>Agua inteligente para un futuro <span class="accent">sostenible</span>.</h1>
-      <p class="lead">
-        Diseñamos, equipamos y operamos soluciones de riego que reducen el consumo de agua hasta un 60%,
-        combinando consultoria experta, tecnologia IoT y distribucion de equipos certificados.
-      </p>
+      <h1>{{ sc['home.hero.title'] if sc else 'Agua inteligente para un futuro sostenible.' }}</h1>
+      <p class="lead">{{ sc['home.hero.subtitle'] if sc else 'Disenamos, equipamos y operamos soluciones de riego que reducen el consumo de agua hasta un 60%.' }}</p>
       <div class="hero-cta">
-        <a href="/contact" class="btn btn-primary btn-lg">Solicitar propuesta</a>
-        <a href="/projects" class="btn btn-ghost btn-lg">Ver proyectos</a>
+        <a href="/contact" class="btn btn-primary btn-lg">{{ sc['home.hero.cta'] if sc else 'Solicitar propuesta' }}</a>
+        <a href="/projects" class="btn btn-ghost btn-lg">{{ sc['home.hero.cta2'] if sc else 'Ver proyectos' }}</a>
       </div>
       <div class="hero-trust">
         <div><strong>+500</strong><span>Proyectos</span></div>

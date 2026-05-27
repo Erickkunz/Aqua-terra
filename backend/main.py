@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from config import settings
 from database import Base, engine, SessionLocal
@@ -44,8 +45,32 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY, same_site="lax", https_only=False)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.SECRET_KEY,
+    same_site="lax",
+    https_only=settings.SESSION_HTTPS_ONLY or settings.is_production,
+)
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+
+
+@app.get("/healthz", include_in_schema=False)
+def healthz():
+    """Lightweight liveness probe for load balancers."""
+    return {"status": "ok"}
+
+
+@app.get("/readyz", include_in_schema=False)
+def readyz():
+    """Readiness probe: confirms DB connectivity."""
+    try:
+        from sqlalchemy import text
+        with SessionLocal() as db:
+            db.execute(text("SELECT 1"))
+        return {"status": "ready"}
+    except Exception as e:
+        logger.warning("readiness probe failed: %s", e)
+        return JSONResponse({"status": "degraded", "error": str(e)}, status_code=503)
 
 
 @app.middleware("http")
@@ -60,9 +85,11 @@ async def not_found(request: Request, exc):
     accept = request.headers.get("accept", "")
     if "application/json" in accept:
         return JSONResponse({"error": "not_found"}, status_code=404)
+    # Use base_ctx so the footer / nav have all expected context (sc, pillars, etc).
+    from routes._common import base_ctx
     return templates.TemplateResponse(
         "404.html",
-        {"request": request, "site_name": settings.SITE_NAME, "site_tagline": settings.SITE_TAGLINE},
+        base_ctx(request),
         status_code=404,
     )
 

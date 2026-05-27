@@ -2,7 +2,71 @@
 {% block admin_title %}Contenido{% endblock %}
 {% block admin_heading %}Editar contenido del sitio{% endblock %}
 {% block admin_content %}
-<div class="admin-card">
-  <p>Proximamente: editor de textos hero, about, pilares.</p>
-</div>
+<form method="post" action="/admin/content/save" class="admin-content-form">
+  <p class="admin-help">
+    Aqui puedes modificar los textos visibles en la pagina sin tocar el codigo.
+    Cada cambio se guarda en la base de datos y se aplica inmediatamente.
+  </p>
+
+  {% for section, fields in groups.items() %}
+  <div class="admin-card">
+    <h3 class="admin-section-title">
+      <i class="fa-solid fa-pen-to-square"></i>
+      Seccion: <strong>{{ section|capitalize }}</strong>
+    </h3>
+    <div class="admin-grid">
+      {% for f in fields %}
+      <div class="admin-field">
+        <label for="f_{{ f.key }}">{{ f.label }}</label>
+        {% if f.value|length > 80 %}
+        <textarea id="f_{{ f.key }}" name="field_{{ f.key }}" rows="3">{{ f.value }}</textarea>
+        {% else %}
+        <input type="text" id="f_{{ f.key }}" name="field_{{ f.key }}" value="{{ f.value }}" />
+        {% endif %}
+        <small class="admin-key">clave: <code>{{ f.key }}</code></small>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+
+  <div class="admin-sticky-actions">
+    <button type="submit" class="btn btn-primary btn-glow">
+      <i class="fa-solid fa-floppy-disk"></i> Guardar todos los cambios
+    </button>
+    <a href="/admin" class="btn btn-ghost">Cancelar</a>
+  </div>
+</form>
+
+<style>
+  .admin-content-form .admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .admin-content-form .admin-field { display: flex; flex-direction: column; gap: .35rem; }
+  .admin-content-form .admin-field label { font-weight: 600; font-size: .9rem; }
+  .admin-content-form .admin-field input,
+  .admin-content-form .admin-field textarea {
+    padding: .55rem .7rem;
+    border: 1px solid #d6e2ef;
+    border-radius: 8px;
+    font: inherit;
+    width: 100%;
+  }
+  .admin-content-form .admin-field .admin-key { color: #6b7d92; font-size: .72rem; }
+  .admin-content-form .admin-section-title { margin: 0 0 .8rem; font-size: 1rem; }
+  .admin-sticky-actions {
+    position: sticky;
+    bottom: 0;
+    background: rgba(255,255,255,.95);
+    padding: .8rem 0;
+    display: flex;
+    gap: .6rem;
+    border-top: 1px solid #e6eef7;
+    margin-top: 1rem;
+    z-index: 10;
+  }
+  .admin-help { padding: .6rem .8rem; background: #eef6ff; border-left: 3px solid #2E75B6; border-radius: 6px; margin-bottom: 1rem; }
+</style>
 {% endblock %}

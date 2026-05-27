@@ -17,14 +17,13 @@
   --neon-glow: 0 0 20px var(--aqua-glow), 0 0 40px rgba(46,117,182,.35);
 }
 
-/* ---------- Cursor canvas layer ---------- */
-/* NOTE: no mix-blend-mode here. screen mode hides cyan on white bg. */
+/* ---------- Cursor canvas layer (SOLID spheres - top of stack) ---------- */
 #cursorCanvas {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 9999;
-  opacity: .95;
+  z-index: 999999; /* above overlays and modals */
+  opacity: 1;     /* fully visible, no transparency */
 }
 @media (pointer: coarse) { #cursorCanvas { display: none; } }
 @media (prefers-reduced-motion: reduce) { #cursorCanvas { display: none; } }

@@ -21,6 +21,13 @@ class Settings(BaseSettings):
     ADMIN_USERNAME: str = "admin"
     ADMIN_EMAIL: str = "admin@aquaterra.com"
     ADMIN_PASSWORD: str = "AquaTerra2026!"
+    # Production hardening
+    SESSION_HTTPS_ONLY: bool = False
+    WEB_WORKERS: int = 2
+
+    @property
+    def is_production(self) -> bool:
+        return self.ENVIRONMENT.lower() == "production"
 
 
 @lru_cache

@@ -1,8 +1,9 @@
 /* =====================================================================
-   Aqua-Terra cursor wave (HIGHLY VISIBLE Antigravity-style)
-   Big focal dot + solid ring + bright halo + continuous waves.
-   Visible on light AND dark backgrounds.
-   Disabled on touch and prefers-reduced-motion.
+   Aqua-Terra cursor + floating spheres (SOLID, fully visible)
+   - Solid colored spheres that follow the cursor (trail of 7 orbs).
+   - 14 ambient spheres drift across the page in the background.
+   - No transparency tricks: opaque fills, bright cores, hard edges.
+   - Disabled on touch and prefers-reduced-motion.
    ===================================================================== */
 (function () {
   if (window.__aquaCursor) return; window.__aquaCursor = true;
@@ -31,161 +32,168 @@
   resize();
   window.addEventListener('resize', resize);
 
-  let mx = -200, my = -200;
-  let fx = mx, fy = my;
-  let hx = mx, hy = my;
-  let visible = false;
-  let speed = 0;
-  const ripples = [];
-  let lastSpawn = 0;
-  let waveSpawn = 0;
+  // ===== Color palette (cores blancos -> bordes vivos) =====
+  const COLORS = [
+    { core: '#FFFFFF', mid: '#7FF1EE', edge: '#3DD9D6' }, // cyan
+    { core: '#FFFFFF', mid: '#6BBDFF', edge: '#2E75B6' }, // blue
+    { core: '#FFFFFF', mid: '#B5F088', edge: '#70AD47' }, // green
+    { core: '#FFFFFF', mid: '#FFD580', edge: '#E8A33D' }, // amber
+  ];
 
-  const C_CYAN = [61, 217, 214];
-  const C_BLUE = [46, 117, 182];
-  const C_DEEP = [31, 78, 121];
-  const C_WHITE = [255, 255, 255];
-  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+  // ===== Cursor state =====
+  let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+  let visible = true;
+  const TRAIL_LEN = 7;
+  const trail = Array.from({ length: TRAIL_LEN }, (_, i) => ({
+    x: mx, y: my,
+    radius: 22 - i * 2.2,
+    color: COLORS[i % COLORS.length],
+    smoothing: 0.18 + i * 0.04,
+  }));
 
   window.addEventListener('mousemove', (e) => {
-    const dx = e.clientX - mx, dy = e.clientY - my;
-    const v = Math.hypot(dx, dy);
-    speed = speed * 0.85 + v * 0.15;
     mx = e.clientX; my = e.clientY;
-    if (!visible) { fx = mx; fy = my; hx = mx; hy = my; }
     visible = true;
-
-    const now = performance.now();
-    if (v > 4 && now - lastSpawn > 60) {
-      ripples.push({
-        x: mx, y: my,
-        r: 8,
-        rmax: 70 + Math.min(80, v * 1.3),
-        born: now,
-        life: 900,
-        color: C_CYAN,
-        width: 2.2,
-      });
-      lastSpawn = now;
-    }
   }, { passive: true });
-
   window.addEventListener('mouseleave', () => { visible = false; });
   window.addEventListener('mouseenter', () => { visible = true; });
 
+  // ===== Click bursts =====
+  const bursts = [];
   window.addEventListener('click', (e) => {
     const now = performance.now();
-    for (let i = 0; i < 3; i++) {
-      ripples.push({
+    for (let i = 0; i < 10; i++) {
+      const angle = (Math.PI * 2 * i) / 10;
+      const speed = 4 + Math.random() * 3;
+      bursts.push({
         x: e.clientX, y: e.clientY,
-        r: 10 + i * 8,
-        rmax: 130 + i * 50,
-        born: now + i * 70,
-        life: 1100,
-        color: i === 1 ? C_BLUE : C_CYAN,
-        width: 2.5,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        r: 8 + Math.random() * 6,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        born: now,
+        life: 800 + Math.random() * 400,
       });
     }
   });
 
+  // ===== Ambient floating spheres =====
+  function spawnAmbient() {
+    const radius = 14 + Math.random() * 28;
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.7,
+      vy: (Math.random() - 0.5) * 0.7,
+      r: radius,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      pulse: Math.random() * Math.PI * 2,
+      pulseSpeed: 0.01 + Math.random() * 0.02,
+    };
+  }
+  const AMBIENT_COUNT = 14;
+  const ambient = Array.from({ length: AMBIENT_COUNT }, spawnAmbient);
+
+  // ===== Drawing helpers =====
+  function hexA(hex, a) {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  function drawSphere(x, y, r, color, alpha = 1) {
+    // Outer halo
+    const haloR = r * 2.3;
+    const halo = ctx.createRadialGradient(x, y, r * 0.5, x, y, haloR);
+    halo.addColorStop(0, hexA(color.edge, 0.45 * alpha));
+    halo.addColorStop(1, hexA(color.edge, 0));
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(x, y, haloR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Main solid sphere body (opaque radial gradient)
+    const sphere = ctx.createRadialGradient(
+      x - r * 0.35, y - r * 0.35, r * 0.1,
+      x, y, r
+    );
+    sphere.addColorStop(0, hexA(color.core, alpha));
+    sphere.addColorStop(0.45, hexA(color.mid, alpha));
+    sphere.addColorStop(1, hexA(color.edge, alpha));
+    ctx.fillStyle = sphere;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Hard rim (gives "solid" perception)
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = hexA(color.edge, 0.9 * alpha);
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Specular highlight (white dot top-left)
+    const spec = ctx.createRadialGradient(
+      x - r * 0.4, y - r * 0.45, 0,
+      x - r * 0.4, y - r * 0.45, r * 0.6
+    );
+    spec.addColorStop(0, hexA('#FFFFFF', 0.9 * alpha));
+    spec.addColorStop(1, hexA('#FFFFFF', 0));
+    ctx.fillStyle = spec;
+    ctx.beginPath();
+    ctx.arc(x - r * 0.4, y - r * 0.45, r * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   function lerp(a, b, t) { return a + (b - a) * t; }
 
+  // ===== Animation loop =====
   function tick(now) {
-    fx = lerp(fx, mx, 0.25);
-    fy = lerp(fy, my, 0.25);
-    hx = lerp(hx, mx, 0.09);
-    hy = lerp(hy, my, 0.09);
-
     ctx.clearRect(0, 0, W, H);
 
-    if (!visible) { requestAnimationFrame(tick); return; }
-
-    // continuous gentle wave
-    if (now - waveSpawn > 380) {
-      ripples.push({
-        x: hx, y: hy,
-        r: 20, rmax: 95, born: now, life: 1700,
-        color: C_CYAN, width: 1.5, gentle: true,
-      });
-      waveSpawn = now;
+    // Ambient floating spheres
+    for (const a of ambient) {
+      a.x += a.vx;
+      a.y += a.vy;
+      a.pulse += a.pulseSpeed;
+      if (a.x < -60) a.x = W + 60;
+      if (a.x > W + 60) a.x = -60;
+      if (a.y < -60) a.y = H + 60;
+      if (a.y > H + 60) a.y = -60;
+      const pulse = 1 + Math.sin(a.pulse) * 0.15;
+      drawSphere(a.x, a.y, a.r * pulse, a.color, 0.9);
     }
 
-    // ===== OUTER HALO (big diffuse glow) =====
-    const haloR = 80 + Math.min(30, speed * 0.6);
-    const haloA = 0.35 + Math.min(0.15, speed * 0.005);
-    const g1 = ctx.createRadialGradient(hx, hy, 0, hx, hy, haloR);
-    g1.addColorStop(0, rgba(C_CYAN, haloA));
-    g1.addColorStop(0.4, rgba(C_BLUE, haloA * 0.7));
-    g1.addColorStop(1, rgba(C_DEEP, 0));
-    ctx.fillStyle = g1;
-    ctx.beginPath();
-    ctx.arc(hx, hy, haloR, 0, Math.PI * 2);
-    ctx.fill();
+    // Click bursts
+    for (let i = bursts.length - 1; i >= 0; i--) {
+      const b = bursts[i];
+      const age = now - b.born;
+      const t = age / b.life;
+      if (t >= 1) { bursts.splice(i, 1); continue; }
+      b.x += b.vx;
+      b.y += b.vy;
+      b.vx *= 0.96;
+      b.vy *= 0.96;
+      const r = b.r * (1 - t * 0.4);
+      drawSphere(b.x, b.y, r, b.color, 1 - t);
+    }
 
-    // ===== INNER FOCAL GLOW =====
-    const focalR = 32;
-    const g2 = ctx.createRadialGradient(fx, fy, 0, fx, fy, focalR);
-    g2.addColorStop(0, rgba(C_WHITE, 0.85));
-    g2.addColorStop(0.25, rgba(C_CYAN, 0.75));
-    g2.addColorStop(0.6, rgba(C_CYAN, 0.35));
-    g2.addColorStop(1, rgba(C_CYAN, 0));
-    ctx.fillStyle = g2;
-    ctx.beginPath();
-    ctx.arc(fx, fy, focalR, 0, Math.PI * 2);
-    ctx.fill();
-
-    // ===== SOLID RING (always visible, like Antigravity) =====
-    ctx.beginPath();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = rgba(C_CYAN, 0.95);
-    ctx.arc(fx, fy, 18, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // inner soft ring
-    ctx.beginPath();
-    ctx.lineWidth = 1.2;
-    ctx.strokeStyle = rgba(C_WHITE, 0.6);
-    ctx.arc(fx, fy, 11, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // ===== BRIGHT CORE DOT =====
-    ctx.beginPath();
-    ctx.fillStyle = rgba(C_WHITE, 1);
-    ctx.arc(fx, fy, 3.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.fillStyle = rgba(C_CYAN, 1);
-    ctx.arc(fx, fy, 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    // ===== WAVE RIPPLES =====
-    for (let i = ripples.length - 1; i >= 0; i--) {
-      const r = ripples[i];
-      const age = now - r.born;
-      if (age < 0) continue;
-      const t = age / r.life;
-      if (t >= 1) { ripples.splice(i, 1); continue; }
-      const eased = 1 - Math.pow(1 - t, 3);
-      const radius = r.r + (r.rmax - r.r) * eased;
-      const baseA = r.gentle ? 0.45 : 0.75;
-      const alpha = baseA * (1 - t);
-      // outer ring
-      ctx.beginPath();
-      ctx.lineWidth = r.width;
-      ctx.strokeStyle = rgba(r.color, alpha);
-      ctx.arc(r.x, r.y, radius, 0, Math.PI * 2);
-      ctx.stroke();
-      // inner glow ring
-      if (!r.gentle && t < 0.65) {
-        ctx.beginPath();
-        ctx.lineWidth = r.width * 0.7;
-        ctx.strokeStyle = rgba(C_WHITE, alpha * 0.45);
-        ctx.arc(r.x, r.y, radius * 0.85, 0, Math.PI * 2);
-        ctx.stroke();
+    if (visible) {
+      // Cursor trail (solid spheres of decreasing size following the mouse)
+      let prevX = mx, prevY = my;
+      for (let i = 0; i < trail.length; i++) {
+        const t = trail[i];
+        t.x = lerp(t.x, prevX, t.smoothing);
+        t.y = lerp(t.y, prevY, t.smoothing);
+        prevX = t.x;
+        prevY = t.y;
+        const alpha = 1 - (i / trail.length) * 0.55;
+        drawSphere(t.x, t.y, t.radius, t.color, alpha);
       }
     }
 
-    speed *= 0.93;
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
