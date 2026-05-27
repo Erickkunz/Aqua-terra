@@ -658,7 +658,44 @@ body.sidebar-collapsed .sidebar-user[data-tip]:hover::after {
   font-size: .92rem;
 }
 .admin-table tr:hover td { background: rgba(61, 217, 214, .04); }
-.row-actions { display: flex; gap: .35rem; justify-content: flex-end; }
+
+/* ---- Compact icon buttons for admin tables ---- */
+.row-actions {
+  display: flex !important;
+  gap: .4rem !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+.row-actions .btn,
+.row-actions form {
+  margin: 0 !important;
+}
+.row-actions form { display: inline-flex !important; }
+.row-actions .btn-sm {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  font-size: .9rem !important;
+  line-height: 1 !important;
+  border-radius: 8px !important;
+  border-width: 1px !important;
+  transform: none !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+.row-actions .btn-sm:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,.12) !important;
+}
+.row-actions .btn-sm i { line-height: 1; }
+.admin-table td { vertical-align: middle !important; }
 
 .cats-grid {
   display: grid;

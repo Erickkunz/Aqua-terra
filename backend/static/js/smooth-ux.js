@@ -10,6 +10,8 @@
   function hideOverlay() {
     if (!overlay) return;
     overlay.classList.add('hide');
+    overlay.classList.remove('show'); // ensure pointer-events returns to none
+    if (overlay.__safetyTimer) { clearTimeout(overlay.__safetyTimer); overlay.__safetyTimer = null; }
     setTimeout(() => { overlay.style.display = 'none'; }, 450);
   }
 
@@ -54,6 +56,13 @@
     overlay.style.display = 'flex';
     overlay.classList.remove('hide');
     overlay.classList.add('show');
+    // Safety: if navigation never completes, hide overlay after 4s so the page
+    // stays usable instead of blocking all clicks (pointer-events: auto on .show).
+    if (overlay.__safetyTimer) clearTimeout(overlay.__safetyTimer);
+    overlay.__safetyTimer = setTimeout(() => {
+      hideOverlay();
+      overlay.classList.remove('show');
+    }, 4000);
   }
 
   // ---- Form submit: overlay + button spinner ----
