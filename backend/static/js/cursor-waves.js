@@ -9,6 +9,12 @@
   if (window.__aquaCursorDOM) return; window.__aquaCursorDOM = true;
 
   function boot() {
+    // Skip ENTIRELY on admin pages so the cursor layer can never interfere
+    // with admin clicks. Checked first, before creating any DOM.
+    if (location.pathname.startsWith('/admin')) {
+      console.log('[Aqua waves] disabled on admin pages');
+      return;
+    }
     const coarse = window.matchMedia('(pointer: coarse)').matches;
     if (coarse) {
       console.warn('[Aqua waves] disabled (touch device)');
@@ -65,6 +71,9 @@
     const root = document.createElement('div');
     root.id = 'aquaCursorRoot';
     root.setAttribute('aria-hidden', 'true');
+    // Inline pointer-events:none as a belt-and-suspenders guarantee that the
+    // overlay never intercepts clicks even if the stylesheet fails to apply.
+    root.style.pointerEvents = 'none';
     document.body.appendChild(root);
 
     // ===== Big wave system (used for auto-spawn at load) =====
@@ -169,14 +178,6 @@
       requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
-
-    // Disable on admin pages to keep the UI 100% predictable
-    if (location.pathname.startsWith('/admin')) {
-      root.remove();
-      css.remove();
-      console.log('[Aqua waves] hidden on admin pages');
-      return;
-    }
 
     // ===== Auto-spawn 5 big waves at center on load =====
     let testN = 0;

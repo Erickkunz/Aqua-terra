@@ -1,33 +1,14 @@
 {% extends "base.html" %}
-{% block title %}{{ post.title }} - Blog{% endblock %}
-
+{% block title %}{{ post.title }} - {{ site_name }}{% endblock %}
 {% block content %}
 <article class="container section blog-detail">
-  <nav class="crumbs"><a href="/blog">Blog</a> / <span>{{ post.category }}</span></nav>
-  <header>
-    <span class="chip chip-soft">{{ post.category }}</span>
-    <h1>{{ post.title }}</h1>
-    <p class="muted">Por {{ post.author }} - {{ post.publish_date.strftime('%d %b %Y') }} - {{ post.read_time_min }} min lectura</p>
-  </header>
-  <img class="blog-cover" src="{{ post.cover_image or 'https://picsum.photos/seed/post' ~ post.id ~ '/1200/600' }}" alt="{{ post.title }}" />
+  <a href="/blog" class="back-link"><i class="fa-solid fa-arrow-left"></i> Volver al blog</a>
+  <span class="chip chip-soft">{{ post.category }}</span>
+  <h1>{{ post.title }}</h1>
+  <p class="muted">{{ post.author }} &middot; {{ post.publish_date.strftime('%d %b %Y') }} &middot; {{ post.read_time_min }} min lectura</p>
+  {% if post.cover_image %}<img src="{{ post.cover_image }}" alt="{{ post.title }}" class="blog-cover">{% endif %}
   <div class="blog-content">
-    {{ post.content|safe }}
+    <div class="post-body">{{ post.content | safe }}</div>
   </div>
 </article>
-
-{% if related %}
-<section class="section bg-soft">
-  <div class="container">
-    <div class="section-head"><span class="eyebrow">Sigue leyendo</span><h2>Otros articulos</h2></div>
-    <div class="grid grid-3">
-      {% for p in related %}
-      <a href="/blog/{{ p.slug }}" class="blog-card">
-        <div class="blog-card-img" style="background-image:url('{{ p.cover_image or 'https://picsum.photos/seed/r' ~ p.id ~ '/600/400' }}')"></div>
-        <div class="blog-card-body"><span class="chip chip-soft">{{ p.category }}</span><h4>{{ p.title }}</h4></div>
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
 {% endblock %}

@@ -1,0 +1,66 @@
+{% extends "admin/_layout.html" %}
+{% block admin_title %}Ordenes{% endblock %}
+{% block admin_heading %}Ordenes ({{ items|length }}){% endblock %}
+{% block admin_content %}
+<div class="admin-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.2rem">
+  <div class="admin-card" style="text-align:center">
+    <div style="font-size:1.8rem;font-weight:800;color:var(--primary)">{{ items|length }}</div>
+    <small class="muted">Ordenes totales</small>
+  </div>
+  <div class="admin-card" style="text-align:center">
+    <div style="font-size:1.8rem;font-weight:800;color:#22c55e">{{ paid_count }}</div>
+    <small class="muted">Pagadas</small>
+  </div>
+  <div class="admin-card" style="text-align:center">
+    <div style="font-size:1.8rem;font-weight:800;color:#7c3aed">CLP {{ "{:,.0f}".format(revenue) }}</div>
+    <small class="muted">Ingresos confirmados</small>
+  </div>
+</div>
+
+<div class="admin-card">
+  {% if items %}
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th style="width:60px">ID</th>
+          <th>Orden</th>
+          <th>Comprador</th>
+          <th style="text-align:right">Total</th>
+          <th style="text-align:center">Estado</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in items %}
+        <tr>
+          <td>{{ o.id }}</td>
+          <td>
+            <strong>{{ o.buy_order }}</strong>
+            {% if o.webpay_authorization_code %}<br><small class="muted">auth: {{ o.webpay_authorization_code }}</small>{% endif %}
+          </td>
+          <td>
+            {{ o.buyer_name or '-' }}<br>
+            <small class="muted">{{ o.buyer_email }}</small>
+          </td>
+          <td style="text-align:right">{{ o.currency }} {{ "{:,.0f}".format(o.total) }}</td>
+          <td style="text-align:center">
+            {% if o.status == 'paid' %}<span class="chip chip-success">pagada</span>
+            {% elif o.status == 'pending' %}<span class="chip chip-soft">pendiente</span>
+            {% elif o.status == 'aborted' %}<span class="chip" style="background:#6b7280;color:#fff">cancelada</span>
+            {% else %}<span class="chip chip-danger">fallida</span>{% endif %}
+          </td>
+          <td>{{ o.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state" style="text-align:center;padding:2rem">
+    <i class="fa-solid fa-receipt" style="font-size:2.5rem;color:var(--muted)"></i>
+    <p class="muted">Aun no hay ordenes. Las compras con WebPay apareceran aqui.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

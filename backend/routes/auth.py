@@ -40,6 +40,7 @@ def register_page(request: Request, db: Session = Depends(get_db)):
 
 # ---- Form handlers ----
 @router.post("/login")
+@limiter.limit("10/minute")
 def login_submit(
     request: Request,
     db: Session = Depends(get_db),
@@ -70,11 +71,11 @@ def login_submit(
     request.session["is_admin"] = bool(user.is_admin)
     logger.info("[LOGIN] user_id=%s username=%s admin=%s", user.id, user.username, user.is_admin)
 
-    safe_next = next if next.startswith("/") else "/"
-    return RedirectResponse(url=safe_next, status_code=303)
+    return RedirectResponse(url=_safe_next(next), status_code=303)
 
 
 @router.post("/register")
+@limiter.limit("5/minute")
 def register_submit(
     request: Request,
     db: Session = Depends(get_db),

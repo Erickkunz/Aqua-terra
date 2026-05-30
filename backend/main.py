@@ -9,8 +9,12 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+
 from config import settings
 from database import Base, engine, SessionLocal
+from ratelimit import limiter
 from routes import home, about, pillars, shop, projects, blog, contact, dashboard, auth, admin, webpay
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -20,8 +24,27 @@ BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
+def _validate_production_secrets():
+    """Refuse to start in production with insecure default secrets."""
+    if not settings.is_production:
+        return
+    problems = []
+    if settings.SECRET_KEY in ("change-me", "change-me-in-production", ""):
+        problems.append("SECRET_KEY is still the default - set a strong random value")
+    if settings.ADMIN_PASSWORD in ("AquaTerra2026!", "", "admin"):
+        problems.append("ADMIN_PASSWORD is still the default - change it")
+    if "change_me" in settings.DATABASE_URL or "riego_pass_change_me" in settings.DATABASE_URL:
+        problems.append("DATABASE_URL uses a default password - change it")
+    if problems:
+        raise RuntimeError(
+            "Refusing to start in production with insecure defaults:\n  - "
+            + "\n  - ".join(problems)
+        )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    _validate_production_secrets()
     logger.info("Creating database tables...")
     Base.metadata.create_all(bind=engine)
 

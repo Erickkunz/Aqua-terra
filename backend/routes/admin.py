@@ -11,7 +11,7 @@ from database import get_db
 from models import (
     Category, Product, Project, Testimonial, BlogPost,
     ContactSubmission, QuoteRequest, NewsletterSubscriber, User,
-    SiteContent,
+    SiteContent, Order,
 )
 from security import require_admin, hash_password
 from utils import slugify
@@ -27,6 +27,8 @@ router = APIRouter(prefix="/admin")
 @router.get("/")
 def admin_home(request: Request, db: Session = Depends(get_db)):
     admin = require_admin(request, db)
+    paid_orders = db.query(Order).filter(Order.status == "paid").all()
+    revenue = sum(o.total for o in paid_orders)
     stats = {
         "users": db.query(User).count(),
         "products": db.query(Product).count(),
@@ -37,6 +39,9 @@ def admin_home(request: Request, db: Session = Depends(get_db)):
         "contacts": db.query(ContactSubmission).count(),
         "quotes": db.query(QuoteRequest).count(),
         "subscribers": db.query(NewsletterSubscriber).count(),
+        "orders": db.query(Order).count(),
+        "orders_paid": len(paid_orders),
+        "revenue": revenue,
     }
     recent_contacts = db.query(ContactSubmission).order_by(ContactSubmission.id.desc()).limit(5).all()
     recent_quotes = db.query(QuoteRequest).order_by(QuoteRequest.id.desc()).limit(5).all()
@@ -524,4 +529,17 @@ def admin_contacts(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(
         "admin/contacts.html",
         base_ctx(request, items=items, quotes=quotes, subs=subs),
+    )
+
+
+# ===== ORDERS (WebPay) =====
+@router.get("/orders")
+def admin_orders(request: Request, db: Session = Depends(get_db)):
+    require_admin(request, db)
+    items = db.query(Order).order_by(Order.id.desc()).all()
+    paid = [o for o in items if o.status == "paid"]
+    revenue = sum(o.total for o in paid)
+    return templates.TemplateResponse(
+        "admin/orders.html",
+        base_ctx(request, items=items, revenue=revenue, paid_count=len(paid)),
     )
