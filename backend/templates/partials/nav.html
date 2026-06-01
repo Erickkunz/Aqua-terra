@@ -73,18 +73,23 @@
     </div>
 
     {% if is_authenticated %}
-    <div class="sidebar-user" data-tip="{{ current_username }}">
+    {% if is_admin %}
+    <a href="/admin" class="sidebar-link {% if request.url.path.startswith('/admin') %}active{% endif %}" data-tip="Panel admin">
+      <i class="fa-solid fa-shield-halved"></i><span>Panel admin</span>
+    </a>
+    {% endif %}
+    <a href="/account" class="sidebar-user {% if request.url.path.startswith('/account') %}active{% endif %}" data-tip="Mi cuenta">
       <div class="sidebar-user-avatar">{{ (current_username or '?')[0]|upper }}</div>
       <div class="sidebar-user-info">
         <strong>{{ current_username }}</strong>
-        {% if is_admin %}<small>Administrador</small>{% else %}<small>Usuario</small>{% endif %}
+        {% if is_admin %}<small>Administrador</small>{% else %}<small>Mi cuenta</small>{% endif %}
       </div>
-      <form method="post" action="/logout" class="sidebar-user-logout">
-        <button type="submit" title="Cerrar sesion" aria-label="Cerrar sesion">
-          <i class="fa-solid fa-arrow-right-from-bracket"></i>
-        </button>
-      </form>
-    </div>
+    </a>
+    <form method="post" action="/logout" class="sidebar-user-logout-row">
+      <button type="submit" class="btn btn-ghost btn-block btn-sm" title="Cerrar sesion">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Cerrar sesion</span>
+      </button>
+    </form>
     {% else %}
     <a href="/login" class="btn btn-primary btn-block btn-sm sidebar-cta btn-glow" data-tip="Iniciar sesion">
       <i class="fa-solid fa-right-to-bracket"></i><span>Iniciar sesion</span>
@@ -111,7 +116,7 @@
       <span class="badge">{{ cart_count }}</span>
     </a>
     {% if is_authenticated %}
-    <a href="{% if is_admin %}/admin{% else %}/{% endif %}" class="topbar-icon" aria-label="Cuenta" title="{{ current_username }}">
+    <a href="/account" class="topbar-icon" aria-label="Mi cuenta" title="{{ current_username }}">
       <i class="fa-solid fa-user-circle"></i>
     </a>
     {% else %}

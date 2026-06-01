@@ -12,6 +12,12 @@
     La <strong>estrella amarilla</strong> indica producto <strong>destacado</strong> (aparece en home/featured).
     El stock muestra la cantidad disponible — al llegar a 0 el producto se marca automaticamente como agotado.
   </p>
+  <form method="get" action="/admin/products" class="admin-search" style="display:flex;gap:.5rem;margin-bottom:1rem">
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar producto por nombre..." style="flex:1;padding:.55rem .8rem;border:1px solid #d6e2ef;border-radius:8px">
+    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+    {% if q %}<a href="/admin/products" class="btn btn-ghost">Limpiar</a>{% endif %}
+  </form>
+  {% if q %}<p class="muted" style="margin-bottom:.5rem">{{ total }} resultado(s) para "{{ q }}"</p>{% endif %}
   <div class="admin-table-wrap">
     <table class="admin-table">
       <thead>
@@ -63,6 +69,13 @@
       </tbody>
     </table>
   </div>
+  {% if pages > 1 %}
+  <div class="admin-pagination" style="display:flex;gap:.4rem;justify-content:center;margin-top:1rem;align-items:center">
+    {% if page > 1 %}<a href="/admin/products?page={{ page-1 }}{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm btn-ghost">&laquo; Anterior</a>{% endif %}
+    <span class="muted">Pagina {{ page }} de {{ pages }}</span>
+    {% if page < pages %}<a href="/admin/products?page={{ page+1 }}{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm btn-ghost">Siguiente &raquo;</a>{% endif %}
+  </div>
+  {% endif %}
 </div>
 
 <div class="admin-card mt-2">

@@ -9,6 +9,11 @@
     <i class="fa-solid fa-power-off"></i> = activar/desactivar cuenta &middot;
     <i class="fa-solid fa-trash"></i> = eliminar permanentemente.
   </p>
+  <form method="get" action="/admin/users" class="admin-search" style="display:flex;gap:.5rem;margin-bottom:1rem">
+    <input type="text" name="q" value="{{ q|default('') }}" placeholder="Buscar por usuario o email..." style="flex:1;padding:.55rem .8rem;border:1px solid #d6e2ef;border-radius:8px">
+    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+    {% if q %}<a href="/admin/users" class="btn btn-ghost">Limpiar</a>{% endif %}
+  </form>
   <div class="admin-table-wrap">
     <table class="admin-table">
       <thead>
@@ -68,5 +73,12 @@
       </tbody>
     </table>
   </div>
+  {% if pages|default(1) > 1 %}
+  <div class="admin-pagination" style="display:flex;gap:.4rem;justify-content:center;margin-top:1rem;align-items:center">
+    {% if page > 1 %}<a href="/admin/users?page={{ page-1 }}{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm btn-ghost">&laquo; Anterior</a>{% endif %}
+    <span class="muted">Pagina {{ page }} de {{ pages }}</span>
+    {% if page < pages %}<a href="/admin/users?page={{ page+1 }}{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm btn-ghost">Siguiente &raquo;</a>{% endif %}
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

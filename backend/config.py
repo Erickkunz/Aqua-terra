@@ -31,6 +31,16 @@ class Settings(BaseSettings):
     TRANSBANK_COMMERCE_CODE: str = ""  # required only when TRANSBANK_ENV=production
     TRANSBANK_API_KEY: str = ""        # required only when TRANSBANK_ENV=production
 
+    # ---- Email (SMTP) ----
+    # Leave SMTP_HOST empty to disable email (the app will just log instead).
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_USE_TLS: bool = True
+    MAIL_FROM: str = "no-reply@aquaterra.com"
+    MAIL_ADMIN: str = ""  # where contact-form notifications go; defaults to CONTACT_EMAIL
+
     @property
     def is_production(self) -> bool:
         return self.ENVIRONMENT.lower() == "production"

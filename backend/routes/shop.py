@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy import or_, func
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Category, Product, QuoteRequest
+from models import Category, Product, QuoteRequest, ProductReview
 from schemas import CartItemIn, QuoteIn
+from security import get_current_user
 from utils import best_bulk_discount
 from ._common import templates, base_ctx
 
@@ -122,10 +123,50 @@ def product_detail(slug: str, request: Request, db: Session = Depends(get_db)):
         .limit(4)
         .all()
     )
+    reviews = (
+        db.query(ProductReview)
+        .filter(ProductReview.product_id == product.id)
+        .order_by(ProductReview.id.desc())
+        .all()
+    )
     return templates.TemplateResponse(
         "product_detail.html",
-        base_ctx(request, product=product, related=related),
+        base_ctx(request, product=product, related=related, reviews=reviews),
     )
+
+
+@router.post("/products/{pid}/review")
+def add_review(
+    pid: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    rating: int = Form(5),
+    text: str = Form(""),
+):
+    user = get_current_user(request, db)
+    product = db.query(Product).filter(Product.id == pid).first()
+    if not product:
+        raise HTTPException(404, "Producto no encontrado")
+    if not user:
+        return RedirectResponse(url=f"/login?next=/shop/products/{product.slug}", status_code=303)
+
+    rating = max(1, min(5, int(rating)))
+    review = ProductReview(
+        product_id=pid,
+        author=user.full_name or user.username,
+        rating=rating,
+        text=text.strip()[:2000],
+    )
+    db.add(review)
+    db.flush()
+    # Recalculate the product's average rating and review count
+    revs = db.query(ProductReview).filter(ProductReview.product_id == pid).all()
+    if revs:
+        product.rating = round(sum(r.rating for r in revs) / len(revs), 1)
+        product.reviews_count = len(revs)
+    db.commit()
+    logger.info("[REVIEW] product=%s user=%s rating=%s", pid, user.id, rating)
+    return RedirectResponse(url=f"/shop/products/{product.slug}#reviews", status_code=303)
 
 
 @router.post("/cart/add")

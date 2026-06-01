@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Mi cuenta - {{ site_name }}{% endblock %}
+{% block content %}
+<section class="container section">
+  <h1>Mi cuenta</h1>
+  <p class="muted">Hola {{ account.full_name or account.username }} ({{ account.email }})</p>
+
+  {% if msg == 'profile' %}<div class="alert alert-success">Perfil actualizado.</div>{% endif %}
+  {% if msg == 'password' %}<div class="alert alert-success">Contrasena cambiada.</div>{% endif %}
+  {% if msg == 'badpass' %}<div class="alert alert-error">La contrasena actual es incorrecta.</div>{% endif %}
+  {% if msg == 'shortpass' %}<div class="alert alert-error">La nueva contrasena debe tener al menos 6 caracteres.</div>{% endif %}
+
+  <div class="account-grid">
+    <div class="account-main">
+      <h3><i class="fa-solid fa-receipt"></i> Mis compras</h3>
+      {% if orders %}
+      <table class="admin-table">
+        <thead><tr><th>Orden</th><th>Total</th><th>Estado</th><th>Fecha</th></tr></thead>
+        <tbody>
+          {% for o in orders %}
+          <tr>
+            <td><strong>{{ o.buy_order }}</strong></td>
+            <td>{{ o.currency }} {{ "{:,.0f}".format(o.total) }}</td>
+            <td>
+              {% if o.status == 'paid' %}<span class="chip chip-success">pagada</span>
+              {% elif o.status == 'pending' %}<span class="chip chip-soft">pendiente</span>
+              {% else %}<span class="chip" style="background:#6b7280;color:#fff">{{ o.status }}</span>{% endif %}
+            </td>
+            <td>{{ o.created_at.strftime('%Y-%m-%d') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="muted">Aun no tienes compras. <a href="/shop">Ir a la tienda</a></p>
+      {% endif %}
+
+      <h3 style="margin-top:1.5rem"><i class="fa-solid fa-file-invoice-dollar"></i> Mis cotizaciones</h3>
+      {% if quotes %}
+      <table class="admin-table">
+        <thead><tr><th>#</th><th>Items</th><th>Estimado</th><th>Fecha</th></tr></thead>
+        <tbody>
+          {% for q in quotes %}
+          <tr>
+            <td>{{ q.id }}</td>
+            <td>{{ q.items|length }} producto(s)</td>
+            <td>USD {{ "{:,.2f}".format(q.estimated_total) }}</td>
+            <td>{{ q.created_at.strftime('%Y-%m-%d') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="muted">No tienes cotizaciones registradas.</p>
+      {% endif %}
+    </div>
+
+    <aside class="account-side">
+      <div class="account-card">
+        <h4>Datos personales</h4>
+        <form method="post" action="/account/update" class="form-stack">
+          <label>Nombre completo
+            <input type="text" name="full_name" value="{{ account.full_name }}">
+          </label>
+          <label>Usuario <input type="text" value="{{ account.username }}" disabled></label>
+          <label>Email <input type="email" value="{{ account.email }}" disabled></label>
+          <button type="submit" class="btn btn-primary btn-block">Guardar</button>
+        </form>
+      </div>
+
+      <div class="account-card">
+        <h4>Cambiar contrasena</h4>
+        <form method="post" action="/account/password" class="form-stack">
+          <label>Contrasena actual <input type="password" name="current_password" required></label>
+          <label>Nueva contrasena <input type="password" name="new_password" required minlength="6"></label>
+          <button type="submit" class="btn btn-ghost btn-block">Actualizar</button>
+        </form>
+      </div>
+
+      <a href="/logout" class="btn btn-ghost btn-block"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesion</a>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .account-grid { display:grid; grid-template-columns: 2fr 1fr; gap:2rem; margin-top:1.5rem; }
+  @media (max-width:800px){ .account-grid{ grid-template-columns:1fr; } }
+  .account-card { background:#fff; border:1px solid #e3edf6; border-radius:12px; padding:1.2rem; margin-bottom:1rem; }
+  .account-card h4 { margin:0 0 .8rem; }
+  .alert { padding:.7rem 1rem; border-radius:8px; margin:.5rem 0; }
+  .alert-success { background:#dcfce7; color:#166534; }
+  .alert-error { background:#fee2e2; color:#991b1b; }
+</style>
+{% endblock %}

@@ -3,7 +3,7 @@ import json
 import logging
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -53,13 +53,26 @@ def admin_home(request: Request, db: Session = Depends(get_db)):
 
 # ===== PRODUCTS =====
 @router.get("/products")
-def admin_products(request: Request, db: Session = Depends(get_db)):
+def admin_products(
+    request: Request,
+    db: Session = Depends(get_db),
+    q: str = "",
+    page: int = Query(1, ge=1),
+):
     require_admin(request, db)
-    items = db.query(Product).order_by(Product.id.desc()).all()
+    per_page = 15
+    query = db.query(Product)
+    if q.strip():
+        like = f"%{q.strip()}%"
+        query = query.filter(Product.name.ilike(like))
+    total = query.count()
+    pages = max(1, (total + per_page - 1) // per_page)
+    page = min(page, pages)
+    items = query.order_by(Product.id.desc()).offset((page - 1) * per_page).limit(per_page).all()
     cats = db.query(Category).order_by(Category.name).all()
     return templates.TemplateResponse(
         "admin/products.html",
-        base_ctx(request, items=items, cats=cats),
+        base_ctx(request, items=items, cats=cats, q=q, page=page, pages=pages, total=total),
     )
 
 
@@ -411,12 +424,25 @@ def testimonial_delete(tid: int, request: Request, db: Session = Depends(get_db)
 
 # ===== USERS =====
 @router.get("/users")
-def admin_users(request: Request, db: Session = Depends(get_db)):
+def admin_users(
+    request: Request,
+    db: Session = Depends(get_db),
+    q: str = "",
+    page: int = Query(1, ge=1),
+):
     require_admin(request, db)
-    items = db.query(User).order_by(User.id.desc()).all()
+    per_page = 20
+    query = db.query(User)
+    if q.strip():
+        like = f"%{q.strip()}%"
+        query = query.filter((User.username.ilike(like)) | (User.email.ilike(like)))
+    total = query.count()
+    pages = max(1, (total + per_page - 1) // per_page)
+    page = min(page, pages)
+    items = query.order_by(User.id.desc()).offset((page - 1) * per_page).limit(per_page).all()
     return templates.TemplateResponse(
         "admin/users.html",
-        base_ctx(request, items=items),
+        base_ctx(request, items=items, q=q, page=page, pages=pages, total=total),
     )
 
 

@@ -233,6 +233,11 @@ async def webpay_return(request: Request, db: Session = Depends(get_db)):
         request.session["cart"] = {}  # clear cart on success
         db.commit()
         logger.info("[WEBPAY] PAID order=%s auth=%s", order.buy_order, order.webpay_authorization_code)
+        try:
+            from mailer import send_order_confirmation
+            send_order_confirmation(order)
+        except Exception as e:
+            logger.warning("[WEBPAY] order confirmation email failed: %s", e)
         return templates.TemplateResponse(
             "webpay_success.html",
             base_ctx(request, order=order, result=result),

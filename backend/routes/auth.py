@@ -10,11 +10,24 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User
 from security import hash_password, verify_password, get_current_user
+from ratelimit import limiter
 from ._common import templates, base_ctx
 
 logger = logging.getLogger("aquaterra.auth")
 
 router = APIRouter()
+
+
+def _safe_next(next_url: str) -> str:
+    """Prevent open-redirect: only allow same-site absolute paths."""
+    if (
+        next_url
+        and next_url.startswith("/")
+        and not next_url.startswith("//")
+        and not next_url.startswith("/\\")
+    ):
+        return next_url
+    return "/"
 
 
 # ---- Pages ----
