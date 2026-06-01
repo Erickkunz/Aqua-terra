@@ -108,6 +108,14 @@ def _parse_json_field(raw: str, default):
         return default
 
 
+def _safe_int(raw: str):
+    """Parse a form-supplied id; raise 400 instead of 500 on garbage input."""
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        raise HTTPException(400, "Identificador invalido")
+
+
 @router.post("/products/save")
 def product_save(
     request: Request,
@@ -133,7 +141,7 @@ def product_save(
         item = Product(slug=slugify(name), category_id=category_id, name=name)
         db.add(item)
     else:
-        item = db.query(Product).filter(Product.id == int(id)).first()
+        item = db.query(Product).filter(Product.id == _safe_int(id)).first()
         if not item:
             raise HTTPException(404, "Producto no encontrado")
 
@@ -183,7 +191,7 @@ def category_save(
 ):
     require_admin(request, db)
     if id.strip():
-        cat = db.query(Category).filter(Category.id == int(id)).first()
+        cat = db.query(Category).filter(Category.id == _safe_int(id)).first()
         if not cat:
             raise HTTPException(404, "Categoria no encontrada")
     else:
@@ -261,7 +269,7 @@ def project_save(
 ):
     require_admin(request, db)
     if id.strip():
-        item = db.query(Project).filter(Project.id == int(id)).first()
+        item = db.query(Project).filter(Project.id == _safe_int(id)).first()
         if not item:
             raise HTTPException(404, "Proyecto no encontrado")
     else:
@@ -343,7 +351,7 @@ def post_save(
 ):
     require_admin(request, db)
     if id.strip():
-        item = db.query(BlogPost).filter(BlogPost.id == int(id)).first()
+        item = db.query(BlogPost).filter(BlogPost.id == _safe_int(id)).first()
         if not item:
             raise HTTPException(404, "Post no encontrado")
     else:
@@ -396,7 +404,7 @@ def testimonial_save(
 ):
     require_admin(request, db)
     if id.strip():
-        item = db.query(Testimonial).filter(Testimonial.id == int(id)).first()
+        item = db.query(Testimonial).filter(Testimonial.id == _safe_int(id)).first()
         if not item:
             raise HTTPException(404, "Testimonio no encontrado")
     else:

@@ -100,7 +100,19 @@ def readyz():
 async def add_global_context(request: Request, call_next):
     request.state.site_name = settings.SITE_NAME
     request.state.site_tagline = settings.SITE_TAGLINE
-    return await call_next(request)
+    response = await call_next(request)
+    # ---- Security headers (defense in depth; also set at nginx for static) ----
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault(
+        "Permissions-Policy", "geolocation=(), microphone=(), camera=()"
+    )
+    if settings.is_production:
+        response.headers.setdefault(
+            "Strict-Transport-Security", "max-age=31536000; includeSubDomains"
+        )
+    return response
 
 
 @app.exception_handler(404)
