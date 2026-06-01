@@ -1,0 +1,163 @@
+/* =====================================================================
+   AQUA-TERRA — Modern redesign layer (v20)
+   Loaded LAST. Refines typography, surfaces, depth and motion without
+   touching markup or breaking existing layout.
+   ===================================================================== */
+
+:root {
+  /* Display font for headings (Space Grotesk has character; Inter stays for body) */
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+
+  /* Refined, hue-tinted shadows (replace flat black) */
+  --shadow-sm: 0 1px 2px rgba(16, 42, 67, .06), 0 2px 8px rgba(16, 42, 67, .05);
+  --shadow: 0 4px 12px rgba(16, 42, 67, .08), 0 12px 32px rgba(16, 42, 67, .07);
+  --shadow-lg: 0 12px 28px rgba(16, 42, 67, .12), 0 28px 70px rgba(16, 42, 67, .14);
+
+  /* Single, slightly desaturated accent kept; add a warm spark for CTAs */
+  --ink: #0d1f33;
+}
+
+/* ---------- Typography ---------- */
+h1, h2, h3, .brand-name, .hero h1, .section-head h2 {
+  font-family: var(--font-display);
+  letter-spacing: -.02em;
+}
+h1 { font-weight: 700; line-height: 1.05; text-wrap: balance; }
+h2 { font-weight: 600; text-wrap: balance; }
+p, .lead { text-wrap: pretty; }
+.lead { max-width: 60ch; }
+/* tabular figures for all the stat numbers */
+.hero-trust strong, .stat-value, .impact-value, .metric strong,
+.summary-row strong, .price, .price-lg, .receipt-row strong {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
+}
+
+/* ---------- Body texture (subtle, breaks flatness) ---------- */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .5;
+  background-image: radial-gradient(rgba(46, 117, 182, .04) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.app-shell { position: relative; z-index: 1; }
+
+/* ---------- Buttons: spring press + refined hover ---------- */
+.btn {
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease, background .2s ease, color .2s ease, border-color .2s ease;
+}
+.btn:active { transform: translateY(1px) scale(.985); }
+.btn-primary {
+  background: linear-gradient(135deg, #3D87CE 0%, #2E75B6 55%, #235e95 100%);
+  box-shadow: 0 4px 14px rgba(46, 117, 182, .30);
+}
+.btn-primary:hover {
+  box-shadow: 0 8px 22px rgba(46, 117, 182, .42);
+}
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Hero refinement ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg {
+  background:
+    radial-gradient(900px 500px at 85% -10%, rgba(61, 217, 214, .16), transparent 60%),
+    radial-gradient(700px 600px at 0% 110%, rgba(112, 173, 71, .12), transparent 55%),
+    linear-gradient(180deg, #f3f8fc 0%, #ffffff 70%) !important;
+}
+.hero h1 .accent,
+.hero h1 .highlight {
+  background: linear-gradient(120deg, #2E75B6, #3DD9D6 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-trust { gap: 2.5rem; }
+.hero-trust strong { font-size: 1.9rem; color: var(--ink); }
+
+/* Floating hero cards: tilt + soft float, tinted shadow */
+.hero-card {
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(46,117,182,.08);
+  backdrop-filter: blur(6px);
+  background: rgba(255,255,255,.92);
+  animation: heroFloat 6s ease-in-out infinite;
+}
+.hero-card-2 { animation-delay: -2s; }
+.hero-card-3 { animation-delay: -4s; }
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ---------- Cards: lift on hover, tinted shadow, varied radius ---------- */
+.pillar-card, .product-card, .project-card, .blog-card, .feature-card, .stat-card {
+  border-radius: 16px;
+  transition: transform .25s cubic-bezier(.22,.8,.36,1), box-shadow .25s ease, border-color .25s ease;
+}
+.pillar-card:hover, .product-card:hover, .project-card:hover, .blog-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Pillar cards: accent edge + number watermark */
+.pillar-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.pillar-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--accent, var(--primary));
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+.pillar-card:hover::before { opacity: 1; }
+.pillar-num {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  opacity: .12;
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+/* ---------- Section rhythm: a touch more breathing room ---------- */
+.section { padding: 5rem 0 5.5rem; }
+.section-head .eyebrow { letter-spacing: .14em; }
+
+/* ---------- Links get a subtle underline-grow ---------- */
+.link-arrow { transition: gap .2s ease; }
+.link-arrow:hover { gap: .6rem; }
+
+/* ---------- Staggered scroll entry already via AOS; add reduced-motion safety --- */
+@media (prefers-reduced-motion: reduce) {
+  .hero-card { animation: none; }
+  * { scroll-behavior: auto; }
+}
+
+/* ---------- Footer polish ---------- */
+.site-footer {
+  background: linear-gradient(180deg, #0d2438 0%, #0a1d2e 100%);
+}
+.site-footer .socials a {
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), color .2s ease;
+}
+.site-footer .socials a:hover { transform: translateY(-3px); }
+
+/* ---------- Chat FAB: keep it lively but not above modals ---------- */
+.chat-fab { box-shadow: 0 10px 26px rgba(46,117,182,.40); }
