@@ -161,3 +161,14 @@ body::before {
 
 /* ---------- Chat FAB: keep it lively but not above modals ---------- */
 .chat-fab { box-shadow: 0 10px 26px rgba(46,117,182,.40); }
+
+/* =====================================================================
+   GLOBAL CLICK-TRAP GUARD
+   Any element carrying the [hidden] attribute MUST be removed from layout.
+   Several components (chat-panel, compare-bar, modals) set display:flex
+   unconditionally, which overrides the browser's default [hidden]{display:none}
+   and leaves an invisible (opacity:0) but click-capturing box on top of the
+   page — this was the real cause of "admin edit/delete buttons stop working
+   from the 3rd row down". This single rule kills the whole bug class.
+   ===================================================================== */
+[hidden] { display: none !important; }

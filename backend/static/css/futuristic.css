@@ -877,6 +877,10 @@ body.sidebar-collapsed .sidebar-user[data-tip]:hover::after {
   transition: opacity .28s ease, transform .35s cubic-bezier(.22,.8,.36,1);
 }
 .chat-panel.open { opacity: 1; transform: translateY(0) scale(1); }
+/* CRITICAL: when hidden, fully remove from layout so the invisible (opacity:0)
+   panel cannot trap clicks meant for content underneath it. The unconditional
+   `display:flex` above otherwise overrides the browser's [hidden] default. */
+.chat-panel[hidden] { display: none !important; }
 
 .chat-head {
   display: flex; align-items: center; justify-content: space-between;
